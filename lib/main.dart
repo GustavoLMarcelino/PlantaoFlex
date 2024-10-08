@@ -10,12 +10,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'PlataoFlex',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 176, 70, 62)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Home'),
     );
   }
 }
@@ -30,53 +30,134 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
+      backgroundColor: Colors.white, // Fundo branco
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            // Imagem centralizada
+            Image.asset(
+              'images/logo_plantaoFlex.png', // Substitua pelo caminho correto
+              width: 170, // Largura da imagem
+              height: 250, // Altura da imagem
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 30), // Espaçamento entre a imagem e o texto "LOGIN"
+
+            // Texto "LOGIN"
             const Text(
-              'You have pushed the button this many times:',
+              'LOGIN',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255,24,164,192), // Cor verde escuro
+                letterSpacing: 2.0,
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            const SizedBox(height: 30), // Espaçamento entre o texto "LOGIN" e o campo de e-mail
+
+            // Campo de texto para e-mail
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'Digite seu e-mail',
+                  labelStyle: const TextStyle(color: Colors.black),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 22, 169, 174)), // Ícone de email
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174)), // Borda quando não está selecionado
+                    borderRadius: BorderRadius.circular(30.0), // Borda arredondada
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174), width: 2.0), // Borda ao focar
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 20), // Espaçamento entre os campos
+
+            // Campo de texto para senha
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: TextField(
+                controller: passwordController,
+                obscureText: _obscureText,
+                decoration: InputDecoration(
+                  labelText: 'Senha',
+                  hintText: 'Digite sua senha',
+                  labelStyle: const TextStyle(color: Colors.black),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 22, 169, 174)), // Ícone de cadeado
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174)),
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174), width: 2.0),
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 40), // Espaçamento entre os campos e o botão
+
+            // Botão "Entrar"
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                backgroundColor: const Color.fromARGB(255, 22, 169, 174), // Cor verde escuro
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25), // Botão arredondado
+                ),
+              ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CadastroPage()),
-                );
+                // Ação do botão de login
               },
-              child: const Text('Ir para Cadastro'),
+              child: const Text(
+                'Entrar',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
+
+
 
 // Nova Tela de Cadastro
 class CadastroPage extends StatefulWidget {
