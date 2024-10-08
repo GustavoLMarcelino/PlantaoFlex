@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Fundo branco
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
@@ -47,8 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
             // Imagem centralizada
             Image.asset(
               'images/logo_plantaoFlex.png', // Substitua pelo caminho correto
-              width: 170, // Largura da imagem
-              height: 250, // Altura da imagem
+              width: 170,
+              height: 250,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 30), // Espaçamento entre a imagem e o texto "LOGIN"
@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255,24,164,192), // Cor verde escuro
+                color: Color.fromARGB(255, 24, 164, 192), // Cor verde escuro
                 letterSpacing: 2.0,
               ),
             ),
@@ -76,13 +76,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   hintText: 'Digite seu e-mail',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 22, 169, 174)), // Ícone de email
+                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 22, 169, 174)),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174)), // Borda quando não está selecionado
-                    borderRadius: BorderRadius.circular(30.0), // Borda arredondada
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174)),
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174), width: 2.0), // Borda ao focar
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 22, 169, 174), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20), // Espaçamento entre os campos
+            const SizedBox(height: 20),
 
             // Campo de texto para senha
             Padding(
@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   hintText: 'Digite sua senha',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 22, 169, 174)), // Ícone de cadeado
+                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 22, 169, 174)),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -134,13 +134,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                backgroundColor: const Color.fromARGB(255, 22, 169, 174), // Cor verde escuro
+                backgroundColor: const Color.fromARGB(255, 22, 169, 174),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25), // Botão arredondado
+                  borderRadius: BorderRadius.circular(25),
                 ),
               ),
               onPressed: () {
-                // Ação do botão de login
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MenuPage()), // Navegação para o Menu
+                );
               },
               child: const Text(
                 'Entrar',
@@ -157,89 +160,87 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
-
-// Nova Tela de Cadastro
-class CadastroPage extends StatefulWidget {
-  const CadastroPage({super.key});
-
-  @override
-  State<CadastroPage> createState() => _CadastroPageState();
-}
-
-class _CadastroPageState extends State<CadastroPage> {
-  final _formKey = GlobalKey<FormState>();
-  String _nome = '';
-  String _email = '';
-  String _senha = '';
+// Menu Principal 
+class MenuPage extends StatelessWidget {
+  const MenuPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadastro de Usuário'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('PlantãoFlex'),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 22, 169, 174),
+        actions: [
+          // Ícone de usuário na extrema direita
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Nome'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu nome';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _nome = value ?? '';
-                },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center, // Centraliza o conteúdo horizontalmente
+          children: <Widget>[
+            // Espaçamento controlado entre o AppBar e o texto "Bem-vindo, [user]!"
+            const SizedBox(height: 80), // Ajuste este valor para mover o título mais próximo ou mais distante do AppBar
+            const Text(
+              'Bem-vindo, [user]!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF004D40), // Cor verde escuro
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu email';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Por favor, insira um email válido';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _email = value ?? '';
-                },
+            ),
+            const SizedBox(height: 0), // Espaçamento entre o título e os botões
+
+            // Botões de Menu (Usando ElevatedButton)
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Centraliza os botões verticalmente na parte restante
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildMenuButton(context, 'Consultar Médicos'),
+                  _buildMenuButton(context, 'Consultar Clientes'),
+                  _buildMenuButton(context, 'Cadastrar novo Médico'),
+                  _buildMenuButton(context, 'Cadastrar nova Consulta'),
+                  _buildMenuButton(context, 'Cadastrar novo Cliente'),
+                  _buildMenuButton(context, 'Dashboards e Relatórios'),
+                ],
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Senha'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.length < 6) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _senha = value ?? '';
-                },
-              ),
-              const SizedBox(height: 20),
-             ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _formKey.currentState?.save();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Usuário $_nome cadastrado com sucesso! Email: $_email, Senha: $_senha')),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Cadastrar'),
-              ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Função para construir botões de menu
+  Widget _buildMenuButton(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: SizedBox(
+        width: double.infinity, // Largura máxima possível (preenche toda a tela)
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 15), // Definir padding apenas para a altura
+            backgroundColor: const Color.fromARGB(255, 22, 169, 174),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25), // Botões arredondados
+            ),
+          ),
+          onPressed: () {
+            // Ação de cada botão pode ser definida aqui
+          },
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
           ),
         ),
       ),
