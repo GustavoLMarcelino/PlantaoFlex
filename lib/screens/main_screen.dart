@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'usercentral_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -9,7 +10,14 @@ class MainScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('PlantãoFlex'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 22, 169, 174),
+        backgroundColor: const Color.fromARGB(255, 217, 217, 217),
+        automaticallyImplyLeading: false, // Remove a seta padrão de retorno
+        leading: IconButton( // Ícone de menu (três linhas)
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            // Ação para abrir o menu pode ser definida aqui
+          },
+        ),
         actions: [
           // Ícone de usuário na extrema direita
           IconButton(
@@ -66,7 +74,7 @@ class MainScreen extends StatelessWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 15), // Definir padding apenas para a altura
-            backgroundColor: const Color.fromARGB(255, 22, 169, 174),
+            backgroundColor: const Color.fromARGB(255, 4, 96, 65),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25), // Botões arredondados
             ),
