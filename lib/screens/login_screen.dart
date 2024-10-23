@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 4, 96, 65),
+                color: Color.fromARGB(255, 1, 118, 115),
                 letterSpacing: 2.0,
               ),
             ),
@@ -54,13 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Digite seu e-mail',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 4, 96, 65)),
+                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 1, 118, 115)),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 4, 96, 65)),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115)),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 4, 96, 65), width: 2.0),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Digite sua senha',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 4, 96, 65)),
+                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 1, 118, 115)),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -94,11 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 4, 96, 65)),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115)),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 4, 96, 65), width: 2.0),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                backgroundColor: const Color.fromARGB(255, 4, 96, 65),
+                backgroundColor: const Color.fromARGB(255, 1, 118, 115),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MainScreen()), // Navegação para o Menu
+                  MaterialPageRoute(builder: (context) => MainScreen()), // Navegação para o Menu
                 );
               },
               child: const Text(

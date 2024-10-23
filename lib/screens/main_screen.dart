@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'usercentral_screen.dart';
+import 'package:plantaoflex/screens/login_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -12,10 +12,15 @@ class MainScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 217, 217, 217),
         automaticallyImplyLeading: false, // Remove a seta padrão de retorno
-        leading: IconButton( // Ícone de menu (três linhas)
-          icon: const Icon(Icons.menu),
-          onPressed: () {
-            // Ação para abrir o menu pode ser definida aqui
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                // Abre o menu lateral da esquerda
+                Scaffold.of(context).openDrawer();
+              },
+            );
           },
         ),
         actions: [
@@ -23,31 +28,82 @@ class MainScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
+              // Ação do ícone de usuário pode ser definida aqui
             },
           ),
         ],
+      ),
+      // Menu lateral (Drawer) que abre pela esquerda
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 1, 118, 115),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.support),
+              title: const Text('Suporte'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Indo para Suporte')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.question_answer),
+              title: const Text('Perguntas Frequentes'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Indo para Perguntas Frequentes')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Desconectar'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(title: 'Login'),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center, // Centraliza o conteúdo horizontalmente
           children: <Widget>[
-            // Espaçamento controlado entre o AppBar e o texto "Bem-vindo, [user]!"
-            const SizedBox(height: 80), // Ajuste este valor para mover o título mais próximo ou mais distante do AppBar
+            const SizedBox(height: 80), // Ajuste para controlar o espaçamento
             const Text(
               'Bem-vindo, [user]!',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF004D40),
+                color: Color.fromARGB(255, 1, 118, 115),
               ),
             ),
             const SizedBox(height: 0), // Espaçamento entre o título e os botões
-
             // Botões de Menu (Usando ElevatedButton)
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Centraliza os botões verticalmente na parte restante
+                mainAxisAlignment: MainAxisAlignment.center, // Centraliza os botões verticalmente
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildMenuButton(context, 'Consultar Médicos'),
@@ -74,7 +130,7 @@ class MainScreen extends StatelessWidget {
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 15), // Definir padding apenas para a altura
-            backgroundColor: const Color.fromARGB(255, 4, 96, 65),
+            backgroundColor: const Color.fromARGB(255, 1, 118, 115),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25), // Botões arredondados
             ),
