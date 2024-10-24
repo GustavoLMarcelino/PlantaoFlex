@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:plantaoflex/screens/login_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -24,7 +23,6 @@ class MainScreen extends StatelessWidget {
           },
         ),
         actions: [
-          // Ícone de usuário na extrema direita
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
@@ -33,14 +31,13 @@ class MainScreen extends StatelessWidget {
           ),
         ],
       ),
-      // Menu lateral (Drawer) que abre pela esquerda
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 1, 118, 115),
+                color: Color.fromARGB(255, 24, 108, 80),
               ),
               child: Text(
                 'Menu',
@@ -74,12 +71,8 @@ class MainScreen extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Desconectar'),
               onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(title: 'Login'),
-                  ),
-                );
+                // Navegar para a página de login usando rota nomeada
+                Navigator.pushReplacementNamed(context, '/');
               },
             ),
           ],
@@ -88,22 +81,21 @@ class MainScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center, // Centraliza o conteúdo horizontalmente
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 80), // Ajuste para controlar o espaçamento
+            const SizedBox(height: 80),
             const Text(
               'Bem-vindo, [user]!',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 1, 118, 115),
+                color: Color.fromARGB(255, 24, 108, 80),
               ),
             ),
-            const SizedBox(height: 0), // Espaçamento entre o título e os botões
-            // Botões de Menu (Usando ElevatedButton)
+            const SizedBox(height: 0),
             Expanded(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Centraliza os botões verticalmente
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _buildMenuButton(context, 'Consultar Médicos'),
@@ -121,22 +113,28 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  // Função para construir botões de menu
   Widget _buildMenuButton(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: SizedBox(
-        width: double.infinity, // Largura máxima possível (preenche toda a tela)
+        width: double.infinity,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 15), // Definir padding apenas para a altura
-            backgroundColor: const Color.fromARGB(255, 1, 118, 115),
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            backgroundColor: const Color.fromARGB(255, 24, 108, 80),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25), // Botões arredondados
+              borderRadius: BorderRadius.circular(25),
             ),
           ),
           onPressed: () {
-            // Ação de cada botão pode ser definida aqui
+            if (text == 'Cadastrar novo Cliente') {
+              // Navegar para a tela de cadastro de cliente
+              Navigator.pushNamed(context, '/register-client');
+            }
+            if (text == 'Cadastrar novo Médico') {
+              // Navegar para a tela de cadastro de cliente
+              Navigator.pushNamed(context, '/register-doctor');
+            }
           },
           child: Text(
             text,

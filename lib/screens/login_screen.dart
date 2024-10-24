@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.title});
@@ -31,19 +30,18 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 250,
               fit: BoxFit.cover,
             ),
-            const SizedBox(height: 30), // Espaçamento entre a imagem e o texto "LOGIN"
+            const SizedBox(height: 30),
             const Text(
               'LOGIN',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 1, 118, 115),
+                color: Color.fromARGB(255, 24, 108, 80),
                 letterSpacing: 2.0,
               ),
             ),
-            const SizedBox(height: 30), // Espaçamento entre o texto "LOGIN" e o campo de e-mail
+            const SizedBox(height: 30),
 
-            // Campo de texto para e-mail
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
@@ -54,13 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Digite seu e-mail',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 1, 118, 115)),
+                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 24, 108, 80)),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115)),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80)),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115), width: 2.0),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -70,7 +68,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Campo de texto para senha
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
@@ -81,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Digite sua senha',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 1, 118, 115)),
+                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 24, 108, 80)),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -94,11 +91,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115)),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80)),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 1, 118, 115), width: 2.0),
+                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -106,22 +103,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 40), // Espaçamento entre os campos e o botão
+            const SizedBox(height: 40),
 
-            // Botão "Entrar"
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                backgroundColor: const Color.fromARGB(255, 1, 118, 115),
+                backgroundColor: const Color.fromARGB(255, 24, 108, 80),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainScreen()), // Navegação para o Menu
-                );
+                // Navegar para a página principal usando rota nomeada
+                Navigator.pushNamed(context, '/main');
               },
               child: const Text(
                 'Entrar',
