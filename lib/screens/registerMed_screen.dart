@@ -55,7 +55,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 children: [
                   Checkbox(
                     value: _isPresencial,
-                    activeColor: const Color.fromARGB(255, 24, 108, 80), // Cor da checkbox
+                    activeColor: const Color.fromARGB(255, 24, 108, 80),
                     onChanged: (bool? value) {
                       setState(() {
                         _isPresencial = value!;
@@ -65,7 +65,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                   const Text('Presencial'),
                   Checkbox(
                     value: _isOnline,
-                    activeColor: const Color.fromARGB(255, 24, 108, 80), // Cor da checkbox
+                    activeColor: const Color.fromARGB(255, 24, 108, 80),
                     onChanged: (bool? value) {
                       setState(() {
                         _isOnline = value!;
@@ -83,7 +83,9 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 24, 108, 80)),
               ),
               Wrap(
-                spacing: 10.0,
+                spacing: 2.0, // Espaçamento horizontal
+                runSpacing: 1.0, // Espaçamento vertical (entre linhas, se houver quebra)
+                alignment: WrapAlignment.start, // Alinhamento dos checkboxes
                 children: [
                   _buildDayCheckBox('SEG', 0),
                   _buildDayCheckBox('TER', 1),
@@ -93,7 +95,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                   _buildDayCheckBox('SAB', 5),
                 ],
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 11.0),
 
               // Observações
               _buildTextField('Observações (opcional)', maxLines: 3),
@@ -103,7 +105,6 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // Botão Cancelar
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -123,8 +124,6 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                       ),
                     ),
                   ),
-
-                  // Botão Salvar
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),

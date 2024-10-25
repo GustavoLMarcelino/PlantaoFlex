@@ -3,6 +3,7 @@ import 'package:plantaoflex/screens/login_screen.dart' as login;
 import 'package:plantaoflex/screens/main_screen.dart';
 import 'package:plantaoflex/screens/registerCli_screen.dart' as register;
 import 'package:plantaoflex/screens/registerMed_screen.dart';
+import 'package:plantaoflex/screens/searchMed_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/main': (context) => const MainScreen(), // Página principal
         '/register-client': (context) => register.RegisterClientScreen(), // Prefixo aplicado ao RegisterClientScreen
         '/register-doctor': (context) => const RegisterDoctorScreen(), // Cadastro de médico
+        '/search-doctor': (context) => SearchMedScreen(), // Consultar Médico
       },
     );
   }

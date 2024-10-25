@@ -135,6 +135,10 @@ class MainScreen extends StatelessWidget {
               // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-doctor');
             }
+            if (text == 'Consultar Médicos') {
+              // Navegar para a tela de cadastro de cliente
+              Navigator.pushNamed(context, '/search-doctor');
+            }
           },
           child: Text(
             text,
