@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "20801902208",
+    "project_id": "plantaoflex-e7d31",
+    "storage_bucket": "plantaoflex-e7d31.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20801902208:android:2bde57ba3b4e8c36187865",
+        "android_client_info": {
+          "package_name": "com.android.plantaoflex"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_Z2_34uJl0dcTOIhaje0EebIQEj1hZ_Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
