@@ -17,24 +17,15 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
@@ -66,4 +57,33 @@ class DefaultFirebaseOptions {
     storageBucket: 'plantaoflex-e7d31.appspot.com',
     measurementId: 'G-G7RGFXG6T0',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCEzuNIkEBdhgPGEDH7lDBus2ckvMna8BQ',
+    appId: '1:20801902208:web:30ec58f687bbeb08187865',
+    messagingSenderId: '20801902208',
+    projectId: 'plantaoflex-e7d31',
+    authDomain: 'plantaoflex-e7d31.firebaseapp.com',
+    storageBucket: 'plantaoflex-e7d31.appspot.com',
+    measurementId: 'G-G7RGFXG6T0',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDwze7-d_2qRU10kqWW79RiW68LgV5RNoo',
+    appId: '1:20801902208:ios:f832d7364bcb0b6a187865',
+    messagingSenderId: '20801902208',
+    projectId: 'plantaoflex-e7d31',
+    storageBucket: 'plantaoflex-e7d31.appspot.com',
+    iosBundleId: 'com.example.plantaoflex',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDwze7-d_2qRU10kqWW79RiW68LgV5RNoo',
+    appId: '1:20801902208:ios:f832d7364bcb0b6a187865',
+    messagingSenderId: '20801902208',
+    projectId: 'plantaoflex-e7d31',
+    storageBucket: 'plantaoflex-e7d31.appspot.com',
+    iosBundleId: 'com.example.plantaoflex',
+  );
+
 }

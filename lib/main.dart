@@ -4,8 +4,15 @@ import 'package:plantaoflex/screens/main_screen.dart';
 import 'package:plantaoflex/screens/registerCli_screen.dart' as register;
 import 'package:plantaoflex/screens/registerMed_screen.dart';
 import 'package:plantaoflex/screens/searchMed_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
   runApp(const MyApp());
 }
 
@@ -17,15 +24,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PlantãoFlex',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 176, 70, 62)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 176, 70, 62)),
         useMaterial3: true,
       ),
       initialRoute: '/', // Define a rota inicial como o LoginScreen
       routes: {
-        '/': (context) => const login.LoginScreen(title: 'Login'), // Prefixo aplicado ao LoginScreen
+        '/': (context) => const login.LoginScreen(
+            title: 'Login'), // Prefixo aplicado ao LoginScreen
         '/main': (context) => const MainScreen(), // Página principal
-        '/register-client': (context) => register.RegisterClientScreen(), // Prefixo aplicado ao RegisterClientScreen
-        '/register-doctor': (context) => const RegisterDoctorScreen(), // Cadastro de médico
+        '/register-client': (context) => register
+            .RegisterClientScreen(), // Prefixo aplicado ao RegisterClientScreen
+        '/register-doctor': (context) =>
+            const RegisterDoctorScreen(), // Cadastro de médico
         '/search-doctor': (context) => SearchMedScreen(), // Consultar Médico
       },
     );
