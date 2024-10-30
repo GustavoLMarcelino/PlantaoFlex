@@ -26,7 +26,8 @@ class MainScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              // Ação do ícone de usuário pode ser definida aqui
+              // Navega para a tela de perfil do usuário
+              Navigator.pushNamed(context, '/profile');
             },
           ),
         ],
@@ -128,23 +129,18 @@ class MainScreen extends StatelessWidget {
           ),
           onPressed: () {
             if (text == 'Consultar Médicos') {
-              // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/search-doctor');
             }
             if (text == 'Consultar Clientes') {
-              // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/search-client');
             }
             if (text == 'Cadastrar novo Médico') {
-              // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-doctor');
             }
             if (text == 'Cadastrar nova Consulta') {
-              // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-consult');
             }
             if (text == 'Cadastrar novo Cliente') {
-              // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-client');
             }
           },
