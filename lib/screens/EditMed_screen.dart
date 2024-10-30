@@ -178,7 +178,7 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
                     ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        // Ação de salvar
+                        _showConfirmSaveDialog(); // Exibe o diálogo de confirmação ao salvar
                       }
                     },
                     child: const Text(
@@ -212,6 +212,34 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
           return 'Por favor, preencha o campo $labelText';
         }
         return null;
+      },
+    );
+  }
+
+  // Função para exibir o diálogo de confirmação ao salvar
+  void _showConfirmSaveDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Salvar alterações?'),
+          content: const Text('Tem certeza de que deseja salvar as alterações?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo sem salvar
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo
+                _saveChanges(); // Salva as alterações
+              },
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
       },
     );
   }
