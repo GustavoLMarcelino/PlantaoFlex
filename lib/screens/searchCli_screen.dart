@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'EditCli_screen.dart';
 
 class SearchClientScreen extends StatelessWidget {
   const SearchClientScreen({Key? key}) : super(key: key);
@@ -77,17 +78,8 @@ class SearchClientScreen extends StatelessWidget {
                 fontSize: 16,
               ),
             ),
-            subtitle: Text('Cliente'),
-            trailing: SizedBox(
-              width: 100, // Largura total da área de ações à direita
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: const [
-                  Icon(Icons.edit, color: Colors.grey),
-                  Icon(Icons.more_vert, color: Colors.grey),
-                ],
-              ),
-            ),
+            subtitle: const Text('Cliente'),
+            trailing: const Icon(Icons.more_vert, color: Colors.grey), // Removi o ícone de lápis
           ),
         ),
       ),
@@ -140,7 +132,7 @@ class SearchClientScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.more_vert),
                       onPressed: () {
-                        _showEditMenu(context);
+                        _showEditMenu(context, cliente);
                       },
                     ),
                   ],
@@ -177,7 +169,7 @@ class SearchClientScreen extends StatelessWidget {
   }
 
   // Função para exibir o menu de três pontos dentro do Bottom Sheet
-  void _showEditMenu(BuildContext context) {
+  void _showEditMenu(BuildContext context, Map<String, dynamic> cliente) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -188,11 +180,17 @@ class SearchClientScreen extends StatelessWidget {
           shrinkWrap: true, // Ajusta o tamanho ao conteúdo
           children: [
             ListTile(
-              leading: const Icon(Icons.edit),
+              leading: const Icon(Icons.edit), // Mantive o item de edição no menu
               title: const Text('Editar'),
               onTap: () {
                 Navigator.pop(context); // Fecha o menu
-                // Ação de editar
+                // Leva para a tela de edição com os dados do cliente
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditCliScreen(cliente: cliente),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -200,7 +198,7 @@ class SearchClientScreen extends StatelessWidget {
               title: const Text('Excluir'),
               onTap: () {
                 Navigator.pop(context); // Fecha o menu
-                // Ação de excluir
+                _showConfirmDeleteDialog(context, cliente); // Exibe o pop-up de confirmação de exclusão
               },
             ),
           ],
@@ -229,6 +227,35 @@ class SearchClientScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  // Função para exibir o pop-up de confirmação de exclusão
+  void _showConfirmDeleteDialog(BuildContext context, Map<String, dynamic> cliente) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Excluir cliente?'),
+          content: const Text('Tem certeza de que deseja excluir este cliente? Esta ação não pode ser desfeita.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo sem excluir
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo
+                // Aqui você pode implementar a ação de excluir o cliente
+                print('Cliente excluído: ${cliente['nome']}');
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

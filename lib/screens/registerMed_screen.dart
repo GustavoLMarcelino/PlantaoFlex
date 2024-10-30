@@ -82,10 +82,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 'Dias de atendimento',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 24, 108, 80)),
               ),
-              Wrap(
-                spacing: 2.0, // Espaçamento horizontal
-                runSpacing: 1.0, // Espaçamento vertical (entre linhas, se houver quebra)
-                alignment: WrapAlignment.start, // Alinhamento dos checkboxes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildDayCheckBox('SEG', 0),
                   _buildDayCheckBox('TER', 1),
@@ -95,7 +93,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                   _buildDayCheckBox('SAB', 5),
                 ],
               ),
-              const SizedBox(height: 11.0),
+              const SizedBox(height: 16.0),
 
               // Observações
               _buildTextField('Observações (opcional)', maxLines: 3),
@@ -172,11 +170,11 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
     );
   }
 
-  // Função para criar Checkboxes de dias
+  // Função para criar Checkboxes de dias com o texto em cima
   Widget _buildDayCheckBox(String label, int index) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Column(
       children: [
+        Text(label), // Texto do dia em cima
         Checkbox(
           value: _daysSelected[index],
           activeColor: const Color.fromARGB(255, 24, 108, 80), // Cor da checkbox
@@ -186,7 +184,6 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
             });
           },
         ),
-        Text(label),
       ],
     );
   }

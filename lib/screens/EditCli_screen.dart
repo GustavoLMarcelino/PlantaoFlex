@@ -1,57 +1,43 @@
 import 'package:flutter/material.dart';
 
-class EditMedScreen extends StatefulWidget {
-  final Map<String, dynamic> medico;
+class EditCliScreen extends StatefulWidget {
+  final Map<String, dynamic> cliente;
 
-  const EditMedScreen({Key? key, required this.medico}) : super(key: key);
+  const EditCliScreen({Key? key, required this.cliente}) : super(key: key);
 
   @override
-  _EditMedicoScreenState createState() => _EditMedicoScreenState();
+  _EditClientScreenState createState() => _EditClientScreenState();
 }
 
-class _EditMedicoScreenState extends State<EditMedScreen> {
+class _EditClientScreenState extends State<EditCliScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores dos campos de texto
   late TextEditingController _nomeController;
-  late TextEditingController _especialidadeController;
-  late TextEditingController _crmController;
+  late TextEditingController _nascimentoController;
   late TextEditingController _telefoneController;
+  late TextEditingController _cpfController;
+  late TextEditingController _rgController;
+  late TextEditingController _emailController;
   late TextEditingController _observacoesController;
-
-  // Variáveis para os checkboxes
-  bool _consultaPresencial = false;
-  bool _consultaOnline = false;
-  List<bool> _diasSelecionados = [false, false, false, false, false, false]; // SEG, TER, QUA, QUI, SEX, SAB
 
   @override
   void initState() {
     super.initState();
-    _nomeController = TextEditingController(text: widget.medico['nome']);
-    _especialidadeController = TextEditingController(text: widget.medico['especialidade']);
-    _crmController = TextEditingController(text: widget.medico['crm']);
-    _telefoneController = TextEditingController(text: widget.medico['telefone']);
-    _observacoesController = TextEditingController(text: widget.medico['observacoes']);
-    
-    // Configura os checkboxes com base nos dados iniciais
-    _consultaPresencial = widget.medico['consulta'].contains('Presencial');
-    _consultaOnline = widget.medico['consulta'].contains('Online');
-
-    // Definindo os dias selecionados
-    final dias = widget.medico['dias'].split(' | ');
-    List<String> diasDaSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    for (int i = 0; i < diasDaSemana.length; i++) {
-      if (dias.contains(diasDaSemana[i])) {
-        _diasSelecionados[i] = true;
-      }
-    }
+    _nomeController = TextEditingController(text: widget.cliente['nome']);
+    _nascimentoController = TextEditingController(text: widget.cliente['nascimento']);
+    _telefoneController = TextEditingController(text: widget.cliente['telefone']);
+    _cpfController = TextEditingController(text: widget.cliente['cpf']);
+    _rgController = TextEditingController(text: widget.cliente['rg']);
+    _emailController = TextEditingController(text: widget.cliente['email']);
+    _observacoesController = TextEditingController(text: widget.cliente['observacoes']);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editar Médico'),
+        title: const Text('Editar Cliente'),
         centerTitle: true,
         backgroundColor: Colors.grey[300],
       ),
@@ -65,69 +51,24 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
               _buildTextField(_nomeController, 'Nome'),
               const SizedBox(height: 16.0),
 
-              // Campo de Especialidade
-              _buildTextField(_especialidadeController, 'Especialidade'),
-              const SizedBox(height: 16.0),
-
-              // Campo de CRM
-              _buildTextField(_crmController, 'CRM/RQE'),
+              // Campo de Data de Nascimento
+              _buildTextField(_nascimentoController, 'Data de Nascimento', hintText: 'DD/MM/AAAA'),
               const SizedBox(height: 16.0),
 
               // Campo de Telefone
               _buildTextField(_telefoneController, 'Telefone'),
               const SizedBox(height: 16.0),
 
-              // Título para Tipos de Consulta
-              const Text(
-                'Tipos de Consulta',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 18),
-              ),
-              const SizedBox(height: 8.0),
-
-              // Checkboxes para Tipos de Consulta
-              Row(
-                children: [
-                  Checkbox(
-                    value: _consultaPresencial,
-                    onChanged: (value) {
-                      setState(() {
-                        _consultaPresencial = value!;
-                      });
-                    },
-                  ),
-                  const Text('Presencial'),
-                  Checkbox(
-                    value: _consultaOnline,
-                    onChanged: (value) {
-                      setState(() {
-                        _consultaOnline = value!;
-                      });
-                    },
-                  ),
-                  const Text('Online'),
-                ],
-              ),
+              // Campo de CPF
+              _buildTextField(_cpfController, 'CPF'),
               const SizedBox(height: 16.0),
 
-              // Título para Dias de Atendimento
-              const Text(
-                'Dias de atendimento',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 18),
-              ),
-              const SizedBox(height: 8.0),
+              // Campo de RG
+              _buildTextField(_rgController, 'RG'),
+              const SizedBox(height: 16.0),
 
-              // Checkboxes para Dias de Atendimento com nome em cima
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildDayCheckBox('SEG', 0),
-                  _buildDayCheckBox('TER', 1),
-                  _buildDayCheckBox('QUA', 2),
-                  _buildDayCheckBox('QUI', 3),
-                  _buildDayCheckBox('SEX', 4),
-                  _buildDayCheckBox('SAB', 5),
-                ],
-              ),
+              // Campo de Email
+              _buildTextField(_emailController, 'Email'),
               const SizedBox(height: 16.0),
 
               // Campo de Observações (opcional)
@@ -191,12 +132,13 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
   }
 
   // Função para criar campos de texto personalizados
-  Widget _buildTextField(TextEditingController controller, String labelText, {int maxLines = 1}) {
+  Widget _buildTextField(TextEditingController controller, String labelText, {String? hintText, int maxLines = 1}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: labelText,
+        hintText: hintText,
         border: const OutlineInputBorder(),
       ),
       validator: (value) {
@@ -205,23 +147,6 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
         }
         return null;
       },
-    );
-  }
-
-  // Função para criar Checkboxes dos dias de atendimento com texto em cima
-  Widget _buildDayCheckBox(String label, int index) {
-    return Column(
-      children: [
-        Text(label), // Texto do dia da semana em cima
-        Checkbox(
-          value: _diasSelecionados[index],
-          onChanged: (bool? value) {
-            setState(() {
-              _diasSelecionados[index] = value!;
-            });
-          },
-        ),
-      ],
     );
   }
 
@@ -257,32 +182,20 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
   void _saveChanges() {
     // Coleta os dados preenchidos
     String nome = _nomeController.text;
-    String especialidade = _especialidadeController.text;
-    String crm = _crmController.text;
+    String nascimento = _nascimentoController.text;
     String telefone = _telefoneController.text;
+    String cpf = _cpfController.text;
+    String rg = _rgController.text;
+    String email = _emailController.text;
     String observacoes = _observacoesController.text;
-
-    // Coleta os tipos de consulta selecionados
-    String tiposConsulta = '';
-    if (_consultaPresencial) tiposConsulta += 'Presencial';
-    if (_consultaOnline) tiposConsulta += tiposConsulta.isNotEmpty ? ' | Online' : 'Online';
-
-    // Coleta os dias selecionados
-    List<String> diasDaSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    String diasSelecionados = '';
-    for (int i = 0; i < _diasSelecionados.length; i++) {
-      if (_diasSelecionados[i]) {
-        diasSelecionados += diasSelecionados.isNotEmpty ? ' | ${diasDaSemana[i]}' : diasDaSemana[i];
-      }
-    }
 
     // Simula salvamento (você pode adicionar lógica para salvar em banco de dados ou outras operações)
     print('Nome: $nome');
-    print('Especialidade: $especialidade');
-    print('CRM/RQE: $crm');
+    print('Data de Nascimento: $nascimento');
     print('Telefone: $telefone');
-    print('Tipos de Consulta: $tiposConsulta');
-    print('Dias de atendimento: $diasSelecionados');
+    print('CPF: $cpf');
+    print('RG: $rg');
+    print('Email: $email');
     print('Observações: $observacoes');
 
     // Após salvar, retorna à tela anterior
