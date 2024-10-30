@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:plantaoflex/services/autenticacao_servico.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final _auth = AutenticacaoServico();
     return Scaffold(
       appBar: AppBar(
         title: const Text('PlantãoFlex'),
@@ -72,7 +74,8 @@ class MainScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Desconectar'),
-              onTap: () {
+              onTap: () async {
+                await _auth.deslogarUsuario();
                 // Navegar para a página de login usando rota nomeada
                 Navigator.pushReplacementNamed(context, '/');
               },
