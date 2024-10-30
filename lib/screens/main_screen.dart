@@ -127,17 +127,21 @@ class MainScreen extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            if (text == 'Cadastrar novo Cliente') {
+            if (text == 'Consultar Médicos') {
               // Navegar para a tela de cadastro de cliente
-              Navigator.pushNamed(context, '/register-client');
+              Navigator.pushNamed(context, '/search-doctor');
+            }
+            if (text == 'Consultar Clientes') {
+              // Navegar para a tela de cadastro de cliente
+              Navigator.pushNamed(context, '/search-client');
             }
             if (text == 'Cadastrar novo Médico') {
               // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-doctor');
             }
-            if (text == 'Consultar Médicos') {
+            if (text == 'Cadastrar novo Cliente') {
               // Navegar para a tela de cadastro de cliente
-              Navigator.pushNamed(context, '/search-doctor');
+              Navigator.pushNamed(context, '/register-client');
             }
           },
           child: Text(
