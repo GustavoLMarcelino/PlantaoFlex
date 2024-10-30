@@ -144,6 +144,9 @@ class MainScreen extends StatelessWidget {
             if (text == 'Cadastrar novo Cliente') {
               Navigator.pushNamed(context, '/register-client');
             }
+            if (text == 'Dashboards e Relatórios') {
+              Navigator.pushNamed(context, '/dashReports');
+            }
           },
           child: Text(
             text,

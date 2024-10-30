@@ -7,6 +7,7 @@ import 'package:plantaoflex/screens/searchMed_screen.dart';
 import 'package:plantaoflex/screens/searchCli_screen.dart';
 import 'package:plantaoflex/screens/registerConsult_screen.dart';
 import 'package:plantaoflex/screens/userInfo_screen.dart';
+import 'package:plantaoflex/screens/dashReports_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/search-client': (context) => const SearchClientScreen(), // Consultar cliente
         '/register-consult': (context) => const CadastroConsultScreen(), // cadastro de consulta
         '/profile':(context) => const ProfileScreen(),// perfil do usuario
+        '/dashReports':(context) => const DashboardScreen(),
       },
     );
   }
