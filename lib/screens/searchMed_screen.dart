@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'EditMed_screen.dart';
 
 class SearchMedScreen extends StatelessWidget {
   const SearchMedScreen({Key? key}) : super(key: key);
@@ -83,12 +84,11 @@ class SearchMedScreen extends StatelessWidget {
             ),
             subtitle: Text(especialidade),
             trailing: SizedBox(
-              width: 100, // Largura total da área de ações à direita
+              width: 50, // Reduzi a largura agora que há menos ícones
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: const [
-                  Icon(Icons.edit, color: Colors.grey),
-                  Icon(Icons.more_vert, color: Colors.grey),
+                  Icon(Icons.more_vert, color: Colors.grey), // Mantém o ícone de opções
                 ],
               ),
             ),
@@ -149,7 +149,7 @@ class SearchMedScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.more_vert),
                       onPressed: () {
-                        _showEditMenu(context);
+                        _showEditMenu(context, medico);
                       },
                     ),
                   ],
@@ -182,8 +182,9 @@ class SearchMedScreen extends StatelessWidget {
     );
   }
 
+
   // Função para exibir o menu de três pontos dentro do Bottom Sheet
-  void _showEditMenu(BuildContext context) {
+  void _showEditMenu(BuildContext context, Map<String, dynamic> medico) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -198,7 +199,13 @@ class SearchMedScreen extends StatelessWidget {
               title: const Text('Editar'),
               onTap: () {
                 Navigator.pop(context); // Fecha o menu
-                // Ação de editar
+                // Leva para a tela de edição com os dados do médico
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditMedScreen(medico: medico),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -206,8 +213,38 @@ class SearchMedScreen extends StatelessWidget {
               title: const Text('Excluir'),
               onTap: () {
                 Navigator.pop(context); // Fecha o menu
-                // Ação de excluir
+                // Exibe o pop-up de confirmação de exclusão
+                _confirmDelete(context, medico);
               },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Função para exibir a caixa de diálogo de confirmação de exclusão
+  void _confirmDelete(BuildContext context, Map<String, dynamic> medico) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Excluir cadastro?'),
+          content: const Text(
+              'Tem certeza de que deseja excluir este cadastro? Essa ação não pode ser desfeita.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Fecha o diálogo
+                // Aqui você pode colocar a ação de excluir o médico da lista
+              },
+              child: const Text('Excluir'),
             ),
           ],
         );
