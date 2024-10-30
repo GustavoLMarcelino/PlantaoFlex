@@ -139,6 +139,10 @@ class MainScreen extends StatelessWidget {
               // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-doctor');
             }
+            if (text == 'Cadastrar nova Consulta') {
+              // Navegar para a tela de cadastro de cliente
+              Navigator.pushNamed(context, '/register-consult');
+            }
             if (text == 'Cadastrar novo Cliente') {
               // Navegar para a tela de cadastro de cliente
               Navigator.pushNamed(context, '/register-client');
