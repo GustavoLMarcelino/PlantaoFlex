@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plantaoflex/services/autenticacao_servico.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.title});
@@ -10,6 +11,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _auth = AutenticacaoServico();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _obscureText = true;
@@ -41,7 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 30),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
@@ -52,13 +53,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Digite seu e-mail',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Color.fromARGB(255, 24, 108, 80)),
+                  prefixIcon: const Icon(Icons.email,
+                      color: Color.fromARGB(255, 24, 108, 80)),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80)),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 24, 108, 80)),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80), width: 2.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 24, 108, 80), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -67,7 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
@@ -78,7 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Digite sua senha',
                   labelStyle: const TextStyle(color: Colors.black),
                   hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 24, 108, 80)),
+                  prefixIcon: const Icon(Icons.lock,
+                      color: Color.fromARGB(255, 24, 108, 80)),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -91,11 +95,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80)),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 24, 108, 80)),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Color.fromARGB(255, 24, 108, 80), width: 2.0),
+                    borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 24, 108, 80), width: 2.0),
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   filled: true,
@@ -104,10 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 40),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 backgroundColor: const Color.fromARGB(255, 24, 108, 80),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
@@ -115,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               onPressed: () {
                 // Navegar para a página principal usando rota nomeada
-                Navigator.pushNamed(context, '/main');
+                botaoLoginClicado();
               },
               child: const Text(
                 'Entrar',
@@ -129,5 +135,16 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  botaoLoginClicado() async {
+    String email = emailController.text;
+    String senha = passwordController.text;
+
+    final user = await _auth.logarUsuario(email: email, senha: senha);
+
+    if (user != null) {
+      Navigator.pushNamed(context, '/main');
+    }
   }
 }

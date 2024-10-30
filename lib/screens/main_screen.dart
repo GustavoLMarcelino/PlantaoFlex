@@ -64,7 +64,8 @@ class MainScreen extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Indo para Perguntas Frequentes')),
+                  const SnackBar(
+                      content: Text('Indo para Perguntas Frequentes')),
                 );
               },
             ),
