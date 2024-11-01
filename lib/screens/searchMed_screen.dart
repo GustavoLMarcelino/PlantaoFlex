@@ -1,33 +1,8 @@
 import 'package:flutter/material.dart';
-import 'EditMed_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SearchMedScreen extends StatelessWidget {
   const SearchMedScreen({Key? key}) : super(key: key);
-
-  // Lista de médicos para preencher a lista
-  final List<Map<String, dynamic>> medicos = const [
-    {
-      'nome': 'Dr. Kaue Oliver', 
-      'especialidade': 'Fisioterapeuta', 
-      'inicial': 'K',
-      'crm': 'CRM/SC 123456',
-      'telefone': '(00) 91234-5678',
-      'consulta': 'Presencial | Online',
-      'dias': 'Seg | Ter | Qui',
-      'observacoes': 'Segunda e terça-feira, atendimento das 8h às 17h; Quarta-feira, das 9h às 18h.'
-    },
-    {
-      'nome': 'Dr. Arthur Tiago', 
-      'especialidade': 'Cardiologista', 
-      'inicial': 'A',
-      'crm': 'CRM/SP 987654',
-      'telefone': '(11) 91234-5678',
-      'consulta': 'Presencial',
-      'dias': 'Seg | Qua | Sex',
-      'observacoes': 'Segunda e quarta-feira, das 9h às 17h.'
-    },
-    // Adicione mais médicos conforme necessário...
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,16 +13,30 @@ class SearchMedScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 217, 217, 217),
         automaticallyImplyLeading: true,
       ),
-      body: ListView.builder(
-        itemCount: medicos.length,
-        itemBuilder: (context, index) {
-          final medico = medicos[index];
-          return _buildMedicoTile(
-            context,
-            medico['nome'],
-            medico['especialidade'],
-            medico['inicial'],
-            medico,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('medicos').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Nenhum médico encontrado.'));
+          }
+
+          final medicos = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: medicos.length,
+            itemBuilder: (context, index) {
+              final medico = medicos[index].data() as Map<String, dynamic>;
+              return _buildMedicoTile(
+                context,
+                medico['name'] ?? 'Nome indisponível',
+                medico['specialty'] ?? 'Especialidade indisponível',
+                medico['name']?[0]?.toUpperCase() ?? '?',
+                medico,
+              );
+            },
           );
         },
       ),
@@ -55,7 +44,8 @@ class SearchMedScreen extends StatelessWidget {
   }
 
   // Função para construir um "ListTile" personalizado para cada médico
-  Widget _buildMedicoTile(BuildContext context, String nome, String especialidade, String inicial, Map<String, dynamic> medico) {
+  Widget _buildMedicoTile(BuildContext context, String nome,
+      String especialidade, String inicial, Map<String, dynamic> medico) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: GestureDetector(
@@ -72,7 +62,8 @@ class SearchMedScreen extends StatelessWidget {
               backgroundColor: const Color.fromARGB(255, 1, 118, 115),
               child: Text(
                 inicial,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             title: Text(
@@ -83,15 +74,7 @@ class SearchMedScreen extends StatelessWidget {
               ),
             ),
             subtitle: Text(especialidade),
-            trailing: SizedBox(
-              width: 50, // Reduzi a largura agora que há menos ícones
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: const [
-                  Icon(Icons.more_vert, color: Colors.grey), // Mantém o ícone de opções
-                ],
-              ),
-            ),
+            trailing: const Icon(Icons.more_vert, color: Colors.grey),
           ),
         ),
       ),
@@ -102,17 +85,17 @@ class SearchMedScreen extends StatelessWidget {
   void _showMedicoDetails(BuildContext context, Map<String, dynamic> medico) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Permite maior controle sobre a altura
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       builder: (context) {
         return FractionallySizedBox(
-          heightFactor: 0.75, // Define a altura como 75% da tela
+          heightFactor: 0.75,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Faz o BottomSheet ajustar-se ao conteúdo
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -122,9 +105,10 @@ class SearchMedScreen extends StatelessWidget {
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: CircleAvatar(
-                          backgroundColor: const Color.fromARGB(255, 1, 118, 115),
+                          backgroundColor:
+                              const Color.fromARGB(255, 1, 118, 115),
                           child: Text(
-                            medico['inicial'],
+                            medico['name']?[0]?.toUpperCase() ?? '?',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -132,17 +116,15 @@ class SearchMedScreen extends StatelessWidget {
                           ),
                         ),
                         title: Text(
-                          medico['nome'],
+                          medico['name'] ?? 'Nome indisponível',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20, // Aumentando o tamanho da fonte para o nome
+                            fontSize: 20,
                           ),
                         ),
                         subtitle: Text(
-                          medico['especialidade'],
-                          style: const TextStyle(
-                            fontSize: 16, // Aumentando o tamanho da fonte para a especialidade
-                          ),
+                          medico['specialty'] ?? 'Especialidade indisponível',
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
@@ -154,26 +136,29 @@ class SearchMedScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20), // Maior espaçamento entre as linhas
-
-                // Detalhes com espaçamento e fonte maior
-                _buildDetailItem('Nome', medico['nome']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('CRM/RQE', medico['crm']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Telefone', medico['telefone']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Consulta', medico['consulta']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Dias de atendimento', medico['dias']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Observações', medico['observacoes']),
-                const SizedBox(height: 25), // Espaçamento extra antes de fechar
+                const SizedBox(height: 20),
+                _buildDetailItem(
+                    'CRM/RQE', medico['crm'] ?? 'CRM indisponível'),
+                const SizedBox(height: 15),
+                _buildDetailItem(
+                    'Telefone', medico['phone'] ?? 'Telefone indisponível'),
+                const SizedBox(height: 15),
+                _buildDetailItem('Consulta Presencial',
+                    medico['isPresencial'] == true ? 'Sim' : 'Não'),
+                const SizedBox(height: 15),
+                _buildDetailItem('Consulta Online',
+                    medico['isOnline'] == true ? 'Sim' : 'Não'),
+                const SizedBox(height: 15),
+                _buildDetailItem(
+                  'Dias de atendimento',
+                  (medico['daysSelected'] is List)
+                      ? (medico['daysSelected'] as List).join(' | ')
+                      : medico['daysSelected'] ?? 'Dias indisponíveis',
+                ),
+                const SizedBox(height: 15),
+                _buildDetailItem('Observações',
+                    medico['observations'] ?? 'Nenhuma observação'),
+                const SizedBox(height: 25),
               ],
             ),
           ),
@@ -181,7 +166,6 @@ class SearchMedScreen extends StatelessWidget {
       },
     );
   }
-
 
   // Função para exibir o menu de três pontos dentro do Bottom Sheet
   void _showEditMenu(BuildContext context, Map<String, dynamic> medico) {
@@ -192,59 +176,23 @@ class SearchMedScreen extends StatelessWidget {
       ),
       builder: (context) {
         return ListView(
-          shrinkWrap: true, // Ajusta o tamanho ao conteúdo
+          shrinkWrap: true,
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
               title: const Text('Editar'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu
-                // Leva para a tela de edição com os dados do médico
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditMedScreen(medico: medico),
-                  ),
-                );
+                Navigator.pop(context);
+                // Implementar a navegação para a tela de edição
               },
             ),
             ListTile(
               leading: const Icon(Icons.delete),
               title: const Text('Excluir'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu
-                // Exibe o pop-up de confirmação de exclusão
-                _confirmDelete(context, medico);
+                Navigator.pop(context);
+                // Implementar a ação de exclusão
               },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Função para exibir a caixa de diálogo de confirmação de exclusão
-  void _confirmDelete(BuildContext context, Map<String, dynamic> medico) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Excluir cadastro?'),
-          content: const Text(
-              'Tem certeza de que deseja excluir este cadastro? Essa ação não pode ser desfeita.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo
-                // Aqui você pode colocar a ação de excluir o médico da lista
-              },
-              child: const Text('Excluir'),
             ),
           ],
         );
@@ -261,15 +209,13 @@ class SearchMedScreen extends StatelessWidget {
           '$title: ',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 16, // Aumentando o tamanho da fonte para o título
+            fontSize: 16,
           ),
         ),
-        const SizedBox(height: 5), // Espaço pequeno entre título e valor
+        const SizedBox(height: 5),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 16, // Aumentando o tamanho da fonte para o valor
-          ),
+          style: const TextStyle(fontSize: 16),
         ),
       ],
     );
