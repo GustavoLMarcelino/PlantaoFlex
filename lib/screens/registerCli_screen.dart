@@ -183,7 +183,8 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
         border: const OutlineInputBorder(),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
+        if ((value == null || value.isEmpty) &&
+            labelText != 'Observações (opcional)') {
           return 'Por favor, preencha o campo $labelText';
         }
         return null;

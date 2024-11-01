@@ -180,7 +180,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
         border: const OutlineInputBorder(),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
+        if ((value == null || value.isEmpty) &&
+            labelText != 'Observações (opcional)') {
           return 'Por favor, preencha o campo $labelText';
         }
         return null;
@@ -222,7 +223,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
         'isPresencial': _isPresencial,
         'isOnline': _isOnline,
         'daysSelected': _daysSelected,
-        'observations': _observations,
+        'observations': _observations.isEmpty ? null : _observations,
       };
 
       try {
