@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:plantaoflex/screens/main_screen.dart';
 
 class RegisterDoctorScreen extends StatefulWidget {
   const RegisterDoctorScreen({Key? key}) : super(key: key);
@@ -9,6 +11,13 @@ class RegisterDoctorScreen extends StatefulWidget {
 
 class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  // Variáveis para armazenar informações do médico
+  String _name = '';
+  String _specialty = '';
+  String _crm = '';
+  String _phone = '';
+  String _observations = '';
 
   // Inicialmente todas as checkboxes são false (não marcadas)
   bool _isPresencial = false;
@@ -31,25 +40,29 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
           child: ListView(
             children: [
               // Nome
-              _buildTextField('Nome'),
+              _buildTextField('Nome', (value) => _name = value!),
               const SizedBox(height: 16.0),
 
               // Especialidade
-              _buildTextField('Especialidade'),
+              _buildTextField('Especialidade', (value) => _specialty = value!),
               const SizedBox(height: 16.0),
 
               // CRM/RQE
-              _buildTextField('CRM/RQE'),
+              _buildTextField('CRM/RQE', (value) => _crm = value!),
               const SizedBox(height: 16.0),
 
               // Telefone
-              _buildTextField('Telefone', hintText: '(00) 91234-5678'),
+              _buildTextField('Telefone', (value) => _phone = value!,
+                  hintText: '(00) 91234-5678'),
               const SizedBox(height: 16.0),
 
               // Tipos de Consulta
               const Text(
                 'Tipos de Consulta',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 24, 108, 80)),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 24, 108, 80)),
               ),
               Row(
                 children: [
@@ -80,7 +93,10 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
               // Dias de Atendimento
               const Text(
                 'Dias de atendimento',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 24, 108, 80)),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 24, 108, 80)),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -96,7 +112,9 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
               const SizedBox(height: 16.0),
 
               // Observações
-              _buildTextField('Observações (opcional)', maxLines: 3),
+              _buildTextField(
+                  'Observações (opcional)', (value) => _observations = value!,
+                  maxLines: 3),
               const SizedBox(height: 32.0),
 
               // Botões Cancelar e Salvar
@@ -105,7 +123,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
                       backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -124,17 +143,15 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      backgroundColor: const Color.fromARGB(255, 1, 118, 115),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
+                      backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Ação de salvar
-                      }
-                    },
+                    onPressed:
+                        _saveDoctor, // Chama a função para salvar os dados
                     child: const Text(
                       'Salvar',
                       style: TextStyle(
@@ -153,7 +170,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   }
 
   // Função para criar TextFields personalizados
-  Widget _buildTextField(String labelText, {String? hintText, int maxLines = 1}) {
+  Widget _buildTextField(String labelText, Function(String?) onSaved,
+      {String? hintText, int maxLines = 1}) {
     return TextFormField(
       maxLines: maxLines,
       decoration: InputDecoration(
@@ -167,6 +185,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
         }
         return null;
       },
+      onSaved: onSaved, // Armazena o valor preenchido
     );
   }
 
@@ -177,7 +196,8 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
         Text(label), // Texto do dia em cima
         Checkbox(
           value: _daysSelected[index],
-          activeColor: const Color.fromARGB(255, 24, 108, 80), // Cor da checkbox
+          activeColor:
+              const Color.fromARGB(255, 24, 108, 80), // Cor da checkbox
           onChanged: (bool? value) {
             setState(() {
               _daysSelected[index] = value!;
@@ -186,5 +206,48 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
         ),
       ],
     );
+  }
+
+  // Função para salvar os dados do médico no Firestore
+  Future<void> _saveDoctor() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save(); // Salva os valores dos campos
+
+      // Criando o novo médico
+      Map<String, dynamic> doctorData = {
+        'name': _name,
+        'specialty': _specialty,
+        'crm': _crm,
+        'phone': _phone,
+        'isPresencial': _isPresencial,
+        'isOnline': _isOnline,
+        'daysSelected': _daysSelected,
+        'observations': _observations,
+      };
+
+      try {
+        // Adicionando os dados do médico à coleção 'medicos'
+        await FirebaseFirestore.instance.collection('medicos').add(doctorData);
+
+        // Mostra um diálogo ou navega para a tela principal após o sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Médico cadastrado com sucesso!')),
+        );
+
+        // Navega para a MainScreen e remove as telas anteriores da pilha
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const MainScreen()), // Rota para a MainScreen
+          (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+        );
+      } catch (e) {
+        // Tratar erros
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao cadastrar médico: $e')),
+        );
+      }
+    }
   }
 }

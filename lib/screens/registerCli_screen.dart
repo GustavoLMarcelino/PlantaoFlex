@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:plantaoflex/screens/main_screen.dart';
 
 class RegisterClientScreen extends StatefulWidget {
   const RegisterClientScreen({Key? key}) : super(key: key);
@@ -9,6 +11,15 @@ class RegisterClientScreen extends StatefulWidget {
 
 class _RegisterClientScreenState extends State<RegisterClientScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  // Campos do formulário
+  String? _nome;
+  String? _dataNascimento;
+  String? _telefone;
+  String? _cpf;
+  String? _rg;
+  String? _email;
+  String? _observacoes;
 
   @override
   Widget build(BuildContext context) {
@@ -26,31 +37,39 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
           child: ListView(
             children: [
               // Nome
-              _buildTextField('Nome'),
+              _buildTextField('Nome', onSaved: (value) => _nome = value),
               const SizedBox(height: 16.0),
 
               // Data de Nascimento
-              _buildTextField('Data de Nascimento', hintText: 'DD/MM/AAAA'),
+              _buildTextField('Data de Nascimento',
+                  hintText: 'DD/MM/AAAA',
+                  onSaved: (value) => _dataNascimento = value),
               const SizedBox(height: 16.0),
 
               // Telefone
-              _buildTextField('Telefone', hintText: '(00) 91234-5678'),
+              _buildTextField('Telefone',
+                  hintText: '(00) 91234-5678',
+                  onSaved: (value) => _telefone = value),
               const SizedBox(height: 16.0),
 
               // CPF
-              _buildTextField('CPF', hintText: '123.456.789.00'),
+              _buildTextField('CPF',
+                  hintText: '123.456.789.00', onSaved: (value) => _cpf = value),
               const SizedBox(height: 16.0),
 
               // RG
-              _buildTextField('RG', hintText: '12.345.689.90'),
+              _buildTextField('RG',
+                  hintText: '12.345.689.90', onSaved: (value) => _rg = value),
               const SizedBox(height: 16.0),
 
               // Email
-              _buildTextField('Email', hintText: 'john@doe.com'),
+              _buildTextField('Email',
+                  hintText: 'john@doe.com', onSaved: (value) => _email = value),
               const SizedBox(height: 16.0),
 
               // Observações (opcional)
-              _buildTextField('Observações (opcional)', maxLines: 5),
+              _buildTextField('Observações (opcional)',
+                  maxLines: 5, onSaved: (value) => _observacoes = value),
               const SizedBox(height: 32.0),
 
               // Botões Cancelar e Salvar
@@ -60,7 +79,8 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                   // Botão Cancelar
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
                       backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
@@ -81,15 +101,58 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                   // Botão Salvar
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
                       backgroundColor: const Color.fromARGB(255, 24, 108, 80),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // Ação de salvar
+                        _formKey.currentState!
+                            .save(); // Salva os valores dos campos
+
+                        // Cria um mapa com os dados do cliente
+                        final clientData = {
+                          'nome': _nome,
+                          'data_nascimento': _dataNascimento,
+                          'telefone': _telefone,
+                          'cpf': _cpf,
+                          'rg': _rg,
+                          'email': _email,
+                          'observacoes': _observacoes,
+                        };
+
+                        try {
+                          // Adiciona os dados do cliente à coleção 'pacientes'
+                          await FirebaseFirestore.instance
+                              .collection('pacientes')
+                              .add(clientData);
+
+                          // Mostra uma mensagem de sucesso
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Cliente cadastrado com sucesso!')),
+                          );
+
+                          // Navega para a MainScreen e remove as telas anteriores da pilha
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const MainScreen()), // Rota para a MainScreen
+                            (Route<dynamic> route) =>
+                                false, // Remove todas as rotas anteriores
+                          );
+                        } catch (e) {
+                          // Tratar erros
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Erro ao cadastrar cliente: $e')),
+                          );
+                        }
                       }
                     },
                     child: const Text(
@@ -110,7 +173,8 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
   }
 
   // Função para criar TextFields personalizados
-  Widget _buildTextField(String labelText, {String? hintText, int maxLines = 1}) {
+  Widget _buildTextField(String labelText,
+      {String? hintText, int maxLines = 1, FormFieldSetter<String>? onSaved}) {
     return TextFormField(
       maxLines: maxLines,
       decoration: InputDecoration(
@@ -124,6 +188,7 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
         }
         return null;
       },
+      onSaved: onSaved, // Salva o valor do campo
     );
   }
 }

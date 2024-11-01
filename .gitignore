@@ -2,7 +2,7 @@
 *.class
 *.log
 *.pyc
-*.swp
+*.swpnpm 
 .DS_Store
 .atom/
 .buildlog/
