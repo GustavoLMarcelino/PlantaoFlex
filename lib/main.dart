@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plantaoflex/screens/login_screen.dart' as login;
 import 'package:plantaoflex/screens/main_screen.dart';
+import 'package:plantaoflex/screens/questionCli_screen.dart';
 import 'package:plantaoflex/screens/registerCli_screen.dart';
 import 'package:plantaoflex/screens/registerMed_screen.dart';
 import 'package:plantaoflex/screens/searchMed_screen.dart';
 import 'package:plantaoflex/screens/searchCli_screen.dart';
 import 'package:plantaoflex/screens/registerConsult_screen.dart';
+import 'package:plantaoflex/screens/support_screen.dart';
 import 'package:plantaoflex/screens/userInfo_screen.dart';
 import 'package:plantaoflex/screens/dashReports_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,18 +42,15 @@ class MyApp extends StatelessWidget {
         '/': (context) => const login.LoginScreen(
             title: 'Login'), // Prefixo aplicado ao LoginScreen
         '/main': (context) => const MainScreen(), // Página principal
-        '/register-client': (context) =>
-            const RegisterClientScreen(), // Registro de Cliente
-        '/register-doctor': (context) =>
-            const RegisterDoctorScreen(), // Cadastro de médico
-        '/search-doctor': (context) =>
-            const SearchMedScreen(), // Consultar Médico
-        '/search-client': (context) =>
-            const SearchClientScreen(), // Consultar cliente
-        '/register-consult': (context) =>
-            const CadastroConsultScreen(), // cadastro de consulta
+        '/register-client': (context) =>const RegisterClientScreen(), // Registro de Cliente
+        '/register-doctor': (context) =>const RegisterDoctorScreen(), // Cadastro de médico
+        '/search-doctor': (context) =>const SearchMedScreen(), // Consultar Médico
+        '/search-client': (context) =>const SearchClientScreen(), // Consultar cliente
+        '/register-consult': (context) =>const CadastroConsultScreen(), // cadastro de consulta
         '/profile': (context) => const ProfileScreen(), // perfil do usuario
         '/dashReports': (context) => const DashboardScreen(),
+        '/support': (context) => SuporteScreen(),
+        '/question': (context) => const FAQScreen(),
       },
     );
   }

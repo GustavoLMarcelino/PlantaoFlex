@@ -1,104 +1,199 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:plantaoflex/screens/main_screen.dart';
 
-class ModifyuserScreen extends StatelessWidget {
-  const ModifyuserScreen({Key? key}) : super(key: key);
+class ModifyUserScreen extends StatefulWidget {
+  const ModifyUserScreen({Key? key}) : super(key: key);
+
+  @override
+  _ModifyUserScreenState createState() => _ModifyUserScreenState();
+}
+
+class _ModifyUserScreenState extends State<ModifyUserScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // Campos do formulário
+  String? _nome;
+  String? _dataNascimento;
+  String? _telefone;
+  String? _cpf;
+  String? _rg;
+  String? _email;
+  String? _observacoes;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PlantãoFlex'),
+        title: const Text('Cadastro de Cliente'),
         centerTitle: true,
         backgroundColor: Colors.grey[300],
-        automaticallyImplyLeading: true, // Mostra o botão "voltar"
+        automaticallyImplyLeading: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Título da seção
-            const Text(
-              'Dados pessoais',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 24, 108, 80),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: ListView(
+                  children: [
+                    // Nome
+                    _buildTextField('Nome', onSaved: (value) => _nome = value),
+                    const SizedBox(height: 16.0),
+
+                    // Data de Nascimento
+                    _buildTextField('Data de Nascimento',
+                        hintText: 'DD/MM/AAAA',
+                        onSaved: (value) => _dataNascimento = value),
+                    const SizedBox(height: 16.0),
+
+                    // Telefone
+                    _buildTextField('Telefone',
+                        hintText: '(00) 91234-5678',
+                        onSaved: (value) => _telefone = value),
+                    const SizedBox(height: 16.0),
+
+                    // CPF
+                    _buildTextField('CPF',
+                        hintText: '123.456.789.00',
+                        onSaved: (value) => _cpf = value),
+                    const SizedBox(height: 16.0),
+
+                    // RG
+                    _buildTextField('RG',
+                        hintText: '12.345.689.90',
+                        onSaved: (value) => _rg = value),
+                    const SizedBox(height: 16.0),
+
+                    // Email
+                    _buildTextField('Email',
+                        hintText: 'john@doe.com',
+                        onSaved: (value) => _email = value),
+                    const SizedBox(height: 16.0),
+
+                    // Observações (opcional)
+                    _buildTextField('Observações (opcional)',
+                        maxLines: 5, onSaved: (value) => _observacoes = value),
+                    const SizedBox(height: 16.0),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // Botão Cancelar
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
 
-            // Nome
-            _buildInfoRow('Nome', 'Arthur Henrique Maia'),
-            const SizedBox(height: 10),
+                  // Botão Salvar
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 15),
+                      backgroundColor: const Color.fromARGB(255, 24, 108, 80),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!
+                            .save(); // Salva os valores dos campos
 
-            // Data de Nascimento
-            _buildInfoRow('Data de Nascimento', '13/05/1977'),
-            const SizedBox(height: 10),
+                        // Cria um mapa com os dados do cliente
+                        final clientData = {
+                          'nome': _nome,
+                          'data_nascimento': _dataNascimento,
+                          'telefone': _telefone,
+                          'cpf': _cpf,
+                          'rg': _rg,
+                          'email': _email,
+                          'observacoes': _observacoes,
+                        };
 
-            // Telefone
-            _buildInfoRow('Telefone', '(47) 98845-6789'),
-            const SizedBox(height: 10),
+                        try {
+                          // Adiciona os dados do cliente à coleção 'pacientes'
+                          await FirebaseFirestore.instance
+                              .collection('pacientes')
+                              .add(clientData);
 
-            // E-mail
-            _buildInfoRow('Email', 'arthurmaia@hotmail.com'),
-            const SizedBox(height: 10),
+                          // Mostra uma mensagem de sucesso
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Cliente cadastrado com sucesso!')),
+                          );
 
-            // Senha
-            _buildInfoRow('Senha', '***********'),
-            const SizedBox(height: 20),
-
-            // Botões para edição (nome, telefone, e-mail, senha)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                          // Navega para a MainScreen e remove as telas anteriores da pilha
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MainScreen()),
+                            (Route<dynamic> route) => false,
+                          );
+                        } catch (e) {
+                          // Tratar erros
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Erro ao cadastrar cliente: $e')),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.check_circle, color: Colors.white),
+                    label: const Text(
+                      'Salvar',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Função para criar os campos de exibição de dados do usuário
-  Widget _buildInfoRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: Colors.black54,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black87,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Função para criar os botões de edição de dados
-  Widget _buildEditButton(BuildContext context, String text, String route) {
-    return TextButton(
-      onPressed: () {
-        Navigator.pushNamed(context, route); // Navegar para a tela de edição correspondente
+  // Função para criar TextFields personalizados
+  Widget _buildTextField(String labelText,
+      {String? hintText, int maxLines = 1, FormFieldSetter<String>? onSaved}) {
+    return TextFormField(
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        border: const OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if ((value == null || value.isEmpty) &&
+            labelText != 'Observações (opcional)') {
+          return 'Por favor, preencha o campo $labelText';
+        }
+        return null;
       },
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Color.fromARGB(255, 24, 108, 80),
-        ),
-      ),
+      onSaved: onSaved, // Salva o valor do campo
     );
   }
 }

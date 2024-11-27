@@ -55,9 +55,7 @@ class MainScreen extends StatelessWidget {
               title: const Text('Suporte'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Indo para Suporte')),
-                );
+                Navigator.pushNamed(context, '/support');
               },
             ),
             ListTile(
@@ -65,10 +63,7 @@ class MainScreen extends StatelessWidget {
               title: const Text('Perguntas Frequentes'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Indo para Perguntas Frequentes')),
-                );
+                Navigator.pushNamed(context, '/question');
               },
             ),
             ListTile(
