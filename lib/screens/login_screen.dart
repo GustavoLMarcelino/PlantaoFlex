@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plantaoflex/services/autenticacao_servico.dart';
 
@@ -26,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            // Imagem do logo
             Image.asset(
               'images/logo_plantaoFlex.png',
               width: 170,
@@ -33,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 30),
+            // Título LOGIN
             const Text(
               'LOGIN',
               style: TextStyle(
@@ -43,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 30),
+            // Campo de Email
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
@@ -71,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 20),
+            // Campo de Senha
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: TextField(
@@ -110,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 40),
+            // Botão Entrar
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding:
@@ -120,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               onPressed: () {
-                // Navegar para a página principal usando rota nomeada
+                debugPrint('Botão Entrar clicado!');
                 botaoLoginClicado();
               },
               child: const Text(
@@ -137,14 +143,56 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// Método de login com SnackBar
   botaoLoginClicado() async {
-    String email = emailController.text;
+    String email = emailController.text.trim();
     String senha = passwordController.text;
 
-    final user = await _auth.logarUsuario(email: email, senha: senha);
+    debugPrint('Tentando logar com email: $email e senha: *****');
 
-    if (user != null) {
-      Navigator.pushNamed(context, '/main');
+    try {
+      final user = await _auth.logarUsuario(email: email, senha: senha);
+
+      if (user != null) {
+        Navigator.pushNamed(context, '/main');
+      }
+    } catch (e) {
+      debugPrint('Erro no login: $e');
+
+      String errorMessage = 'Ocorreu um erro.';
+
+      if (e is FirebaseAuthException) {
+        switch (e.code) {
+          case 'user-not-found':
+            errorMessage = 'Usuário não encontrado. Verifique o email.';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Senha incorreta. Tente novamente.';
+            break;
+          case 'invalid-email':
+            errorMessage = 'Email inválido. Verifique o formato.';
+            break;
+          default:
+            errorMessage = 'Erro inesperado: ${e.message}';
+        }
+      }
+
+      // Mostrar SnackBar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .clearSnackBars(); // Limpa outros SnackBars
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              errorMessage,
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 }

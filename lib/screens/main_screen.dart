@@ -100,6 +100,7 @@ class MainScreen extends StatelessWidget {
                 children: [
                   _buildMenuButton(context, 'Consultar Médicos'),
                   _buildMenuButton(context, 'Consultar Clientes'),
+                  _buildMenuButton(context, 'Consultar Consultas'),
                   _buildMenuButton(context, 'Cadastrar novo Médico'),
                   _buildMenuButton(context, 'Cadastrar nova Consulta'),
                   _buildMenuButton(context, 'Cadastrar novo Cliente'),
@@ -132,6 +133,9 @@ class MainScreen extends StatelessWidget {
             }
             if (text == 'Consultar Clientes') {
               Navigator.pushNamed(context, '/search-client');
+            }
+            if (text == 'Consultar Consultas') {
+              Navigator.pushNamed(context, '/consult-consults');
             }
             if (text == 'Cadastrar novo Médico') {
               Navigator.pushNamed(context, '/register-doctor');
