@@ -85,7 +85,7 @@ class MainScreen extends StatelessWidget {
           children: <Widget>[
             const SizedBox(height: 80),
             const Text(
-              'Bem-vindo, [user]!',
+              'Bem-vindo!',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,

@@ -1,49 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditMedScreen extends StatefulWidget {
   final Map<String, dynamic> medico;
+  final String docId;
 
-  const EditMedScreen({Key? key, required this.medico}) : super(key: key);
+  const EditMedScreen({Key? key, required this.medico, required this.docId})
+      : super(key: key);
 
   @override
-  _EditMedicoScreenState createState() => _EditMedicoScreenState();
+  State<EditMedScreen> createState() => _EditMedScreenState();
 }
 
-class _EditMedicoScreenState extends State<EditMedScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  // Controladores dos campos de texto
+class _EditMedScreenState extends State<EditMedScreen> {
   late TextEditingController _nomeController;
   late TextEditingController _especialidadeController;
   late TextEditingController _crmController;
   late TextEditingController _telefoneController;
   late TextEditingController _observacoesController;
 
-  // Variáveis para os checkboxes
   bool _consultaPresencial = false;
   bool _consultaOnline = false;
-  List<bool> _diasSelecionados = [false, false, false, false, false, false]; // SEG, TER, QUA, QUI, SEX, SAB
+  List<bool> _diasSelecionados = [false, false, false, false, false, false];
 
   @override
   void initState() {
     super.initState();
-    _nomeController = TextEditingController(text: widget.medico['nome']);
-    _especialidadeController = TextEditingController(text: widget.medico['especialidade']);
+    _nomeController = TextEditingController(text: widget.medico['name']);
+    _especialidadeController =
+        TextEditingController(text: widget.medico['specialty']);
     _crmController = TextEditingController(text: widget.medico['crm']);
-    _telefoneController = TextEditingController(text: widget.medico['telefone']);
-    _observacoesController = TextEditingController(text: widget.medico['observacoes']);
-    
-    // Configura os checkboxes com base nos dados iniciais
-    _consultaPresencial = widget.medico['consulta'].contains('Presencial');
-    _consultaOnline = widget.medico['consulta'].contains('Online');
+    _telefoneController = TextEditingController(text: widget.medico['phone']);
+    _observacoesController =
+        TextEditingController(text: widget.medico['observations'] ?? '');
+    _consultaPresencial = widget.medico['isPresencial'] ?? false;
+    _consultaOnline = widget.medico['isOnline'] ?? false;
 
-    // Definindo os dias selecionados
-    final dias = widget.medico['dias'].split(' | ');
-    List<String> diasDaSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    for (int i = 0; i < diasDaSemana.length; i++) {
-      if (dias.contains(diasDaSemana[i])) {
-        _diasSelecionados[i] = true;
+    if (widget.medico['daysSelected'] is List) {
+      List<String> dias = List<String>.from(widget.medico['daysSelected']);
+      List<String> diasDaSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+      for (int i = 0; i < diasDaSemana.length; i++) {
+        if (dias.contains(diasDaSemana[i])) {
+          _diasSelecionados[i] = true;
+        }
       }
+    }
+  }
+
+  void _saveChanges() async {
+    String nome = _nomeController.text;
+    String especialidade = _especialidadeController.text;
+    String crm = _crmController.text;
+    String telefone = _telefoneController.text;
+    String observacoes = _observacoesController.text;
+
+    bool isPresencial = _consultaPresencial;
+    bool isOnline = _consultaOnline;
+
+    List<String> diasDaSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+    List<String> diasSelecionados = [];
+    for (int i = 0; i < _diasSelecionados.length; i++) {
+      if (_diasSelecionados[i]) diasSelecionados.add(diasDaSemana[i]);
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('medicos')
+          .doc(widget.docId)
+          .update({
+        'name': nome,
+        'specialty': especialidade,
+        'crm': crm,
+        'phone': telefone,
+        'observations': observacoes,
+        'isPresencial': isPresencial,
+        'isOnline': isOnline,
+        'daysSelected': diasSelecionados,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Alterações salvas com sucesso!')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao salvar alterações: $e')),
+      );
     }
   }
 
@@ -53,239 +94,84 @@ class _EditMedicoScreenState extends State<EditMedScreen> {
       appBar: AppBar(
         title: const Text('Editar Médico'),
         centerTitle: true,
-        backgroundColor: Colors.grey[300],
+        backgroundColor: const Color.fromARGB(255, 217, 217, 217),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Campo de Nome
-              _buildTextField(_nomeController, 'Nome'),
-              const SizedBox(height: 16.0),
-
-              // Campo de Especialidade
-              _buildTextField(_especialidadeController, 'Especialidade'),
-              const SizedBox(height: 16.0),
-
-              // Campo de CRM
-              _buildTextField(_crmController, 'CRM/RQE'),
-              const SizedBox(height: 16.0),
-
-              // Campo de Telefone
-              _buildTextField(_telefoneController, 'Telefone'),
-              const SizedBox(height: 16.0),
-
-              // Título para Tipos de Consulta
-              const Text(
-                'Tipos de Consulta',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 18),
-              ),
-              const SizedBox(height: 8.0),
-
-              // Checkboxes para Tipos de Consulta
-              Row(
-                children: [
-                  Checkbox(
-                    value: _consultaPresencial,
-                    onChanged: (value) {
-                      setState(() {
-                        _consultaPresencial = value!;
-                      });
-                    },
-                  ),
-                  const Text('Presencial'),
-                  Checkbox(
-                    value: _consultaOnline,
-                    onChanged: (value) {
-                      setState(() {
-                        _consultaOnline = value!;
-                      });
-                    },
-                  ),
-                  const Text('Online'),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-
-              // Título para Dias de Atendimento
-              const Text(
-                'Dias de atendimento',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 18),
-              ),
-              const SizedBox(height: 8.0),
-
-              // Checkboxes para Dias de Atendimento com nome em cima
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildDayCheckBox('SEG', 0),
-                  _buildDayCheckBox('TER', 1),
-                  _buildDayCheckBox('QUA', 2),
-                  _buildDayCheckBox('QUI', 3),
-                  _buildDayCheckBox('SEX', 4),
-                  _buildDayCheckBox('SAB', 5),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-
-              // Campo de Observações (opcional)
-              _buildTextField(_observacoesController, 'Observações (opcional)', maxLines: 3),
-              const SizedBox(height: 32.0),
-
-              // Botões Cancelar e Salvar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  // Botão Cancelar
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Cancelar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-
-                  // Botão Salvar
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      backgroundColor: const Color.fromARGB(255, 24, 108, 80),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _showConfirmSaveDialog(); // Exibe o diálogo de confirmação ao salvar
-                      }
-                    },
-                    child: const Text(
-                      'Salvar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Função para criar campos de texto personalizados
-  Widget _buildTextField(TextEditingController controller, String labelText, {int maxLines = 1}) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: const OutlineInputBorder(),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Por favor, preencha o campo $labelText';
-        }
-        return null;
-      },
-    );
-  }
-
-  // Função para criar Checkboxes dos dias de atendimento com texto em cima
-  Widget _buildDayCheckBox(String label, int index) {
-    return Column(
-      children: [
-        Text(label), // Texto do dia da semana em cima
-        Checkbox(
-          value: _diasSelecionados[index],
-          onChanged: (bool? value) {
-            setState(() {
-              _diasSelecionados[index] = value!;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  // Função para exibir o diálogo de confirmação ao salvar
-  void _showConfirmSaveDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Salvar alterações?'),
-          content: const Text('Tem certeza de que deseja salvar as alterações?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo sem salvar
-              },
-              child: const Text('Cancelar'),
+        child: Column(
+          children: [
+            TextField(
+              controller: _nomeController,
+              decoration: const InputDecoration(labelText: 'Nome'),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo
-                _saveChanges(); // Salva as alterações
+            TextField(
+              controller: _especialidadeController,
+              decoration: const InputDecoration(labelText: 'Especialidade'),
+            ),
+            TextField(
+              controller: _crmController,
+              decoration: const InputDecoration(labelText: 'CRM/RQE'),
+            ),
+            TextField(
+              controller: _telefoneController,
+              decoration: const InputDecoration(labelText: 'Telefone'),
+            ),
+            SwitchListTile(
+              title: const Text('Consulta Presencial'),
+              value: _consultaPresencial,
+              onChanged: (value) {
+                setState(() {
+                  _consultaPresencial = value;
+                });
               },
-              child: const Text('Salvar'),
+            ),
+            SwitchListTile(
+              title: const Text('Consulta Online'),
+              value: _consultaOnline,
+              onChanged: (value) {
+                setState(() {
+                  _consultaOnline = value;
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Dias de Atendimento',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Wrap(
+              spacing: 8.0,
+              children: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab']
+                  .asMap()
+                  .entries
+                  .map((entry) {
+                int index = entry.key;
+                String dia = entry.value;
+                return FilterChip(
+                  label: Text(dia),
+                  selected: _diasSelecionados[index],
+                  onSelected: (selected) {
+                    setState(() {
+                      _diasSelecionados[index] = selected;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _observacoesController,
+              decoration: const InputDecoration(labelText: 'Observações'),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveChanges,
+              child: const Text('Salvar Alterações'),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
-  }
-
-  // Função para salvar as alterações
-  void _saveChanges() {
-    // Coleta os dados preenchidos
-    String nome = _nomeController.text;
-    String especialidade = _especialidadeController.text;
-    String crm = _crmController.text;
-    String telefone = _telefoneController.text;
-    String observacoes = _observacoesController.text;
-
-    // Coleta os tipos de consulta selecionados
-    String tiposConsulta = '';
-    if (_consultaPresencial) tiposConsulta += 'Presencial';
-    if (_consultaOnline) tiposConsulta += tiposConsulta.isNotEmpty ? ' | Online' : 'Online';
-
-    // Coleta os dias selecionados
-    List<String> diasDaSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    String diasSelecionados = '';
-    for (int i = 0; i < _diasSelecionados.length; i++) {
-      if (_diasSelecionados[i]) {
-        diasSelecionados += diasSelecionados.isNotEmpty ? ' | ${diasDaSemana[i]}' : diasDaSemana[i];
-      }
-    }
-
-    // Simula salvamento (você pode adicionar lógica para salvar em banco de dados ou outras operações)
-    print('Nome: $nome');
-    print('Especialidade: $especialidade');
-    print('CRM/RQE: $crm');
-    print('Telefone: $telefone');
-    print('Tipos de Consulta: $tiposConsulta');
-    print('Dias de atendimento: $diasSelecionados');
-    print('Observações: $observacoes');
-
-    // Após salvar, retorna à tela anterior
-    Navigator.pop(context);
   }
 }

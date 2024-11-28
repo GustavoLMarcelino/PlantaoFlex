@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'editMed_screen.dart';
 
 class SearchMedScreen extends StatelessWidget {
   const SearchMedScreen({Key? key}) : super(key: key);
@@ -29,12 +30,14 @@ class SearchMedScreen extends StatelessWidget {
             itemCount: medicos.length,
             itemBuilder: (context, index) {
               final medico = medicos[index].data() as Map<String, dynamic>;
+              final docId = medicos[index].id;
               return _buildMedicoTile(
                 context,
                 medico['name'] ?? 'Nome indisponível',
                 medico['specialty'] ?? 'Especialidade indisponível',
                 medico['name']?[0]?.toUpperCase() ?? '?',
                 medico,
+                docId,
               );
             },
           );
@@ -43,14 +46,19 @@ class SearchMedScreen extends StatelessWidget {
     );
   }
 
-  // Função para construir um "ListTile" personalizado para cada médico
-  Widget _buildMedicoTile(BuildContext context, String nome,
-      String especialidade, String inicial, Map<String, dynamic> medico) {
+  Widget _buildMedicoTile(
+    BuildContext context,
+    String nome,
+    String especialidade,
+    String inicial,
+    Map<String, dynamic> medico,
+    String docId,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: GestureDetector(
         onTap: () {
-          _showMedicoDetails(context, medico);
+          _showMedicoDetails(context, medico, docId);
         },
         child: Card(
           shape: RoundedRectangleBorder(
@@ -81,8 +89,8 @@ class SearchMedScreen extends StatelessWidget {
     );
   }
 
-  // Função para exibir o Bottom Sheet com os detalhes do médico
-  void _showMedicoDetails(BuildContext context, Map<String, dynamic> medico) {
+  void _showMedicoDetails(
+      BuildContext context, Map<String, dynamic> medico, String docId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -129,9 +137,16 @@ class SearchMedScreen extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.more_vert),
+                      icon: const Icon(Icons.edit),
                       onPressed: () {
-                        _showEditMenu(context, medico);
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EditMedScreen(medico: medico, docId: docId),
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -167,40 +182,6 @@ class SearchMedScreen extends StatelessWidget {
     );
   }
 
-  // Função para exibir o menu de três pontos dentro do Bottom Sheet
-  void _showEditMenu(BuildContext context, Map<String, dynamic> medico) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)),
-      ),
-      builder: (context) {
-        return ListView(
-          shrinkWrap: true,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Editar'),
-              onTap: () {
-                Navigator.pop(context);
-                // Implementar a navegação para a tela de edição
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete),
-              title: const Text('Excluir'),
-              onTap: () {
-                Navigator.pop(context);
-                // Implementar a ação de exclusão
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Função para construir os detalhes de cada item do médico no BottomSheet
   Widget _buildDetailItem(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
