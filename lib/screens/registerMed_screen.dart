@@ -24,6 +24,9 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   bool _isOnline = false;
   List<bool> _daysSelected = [false, false, false, false, false, false];
 
+  // Lista de nomes dos dias da semana
+  final List<String> _daysOfWeek = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,14 +103,9 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildDayCheckBox('SEG', 0),
-                  _buildDayCheckBox('TER', 1),
-                  _buildDayCheckBox('QUA', 2),
-                  _buildDayCheckBox('QUI', 3),
-                  _buildDayCheckBox('SEX', 4),
-                  _buildDayCheckBox('SAB', 5),
-                ],
+                children: List.generate(_daysOfWeek.length, (index) {
+                  return _buildDayCheckBox(_daysOfWeek[index], index);
+                }),
               ),
               const SizedBox(height: 16.0),
 
@@ -214,6 +212,12 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // Salva os valores dos campos
 
+      // Converte os dias selecionados (booleanos) em strings
+      final daysArray = List.generate(
+        _daysSelected.length,
+        (index) => _daysSelected[index] ? _daysOfWeek[index] : null,
+      ).whereType<String>().toList();
+
       // Criando o novo médico
       Map<String, dynamic> doctorData = {
         'name': _name,
@@ -222,7 +226,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
         'phone': _phone,
         'isPresencial': _isPresencial,
         'isOnline': _isOnline,
-        'daysSelected': _daysSelected,
+        'daysSelected': daysArray,
         'observations': _observations.isEmpty ? null : _observations,
       };
 
