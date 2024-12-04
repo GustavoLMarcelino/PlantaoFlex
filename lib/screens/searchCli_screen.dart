@@ -1,31 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'EditCli_screen.dart';
 
 class SearchClientScreen extends StatelessWidget {
   const SearchClientScreen({Key? key}) : super(key: key);
-
-  // Lista de clientes para preencher a lista
-  final List<Map<String, dynamic>> clientes = const [
-    {
-      'nome': 'João Silva', 
-      'nascimento': '12/03/1980', 
-      'cpf': '123.456.789-00',
-      'rg': '12.345.678-9',
-      'telefone': '(11) 91234-5678',
-      'email': 'joao.silva@email.com',
-      'observacoes': 'Cliente prefere atendimento matutino.',
-    },
-    {
-      'nome': 'Maria Oliveira', 
-      'nascimento': '22/07/1992', 
-      'cpf': '987.654.321-00',
-      'rg': '98.765.432-1',
-      'telefone': '(21) 98765-4321',
-      'email': 'maria.oliveira@email.com',
-      'observacoes': 'Necessário lembrar sobre alergias a medicamentos.',
-    },
-    // Adicione mais clientes conforme necessário...
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -36,27 +14,55 @@ class SearchClientScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 217, 217, 217),
         automaticallyImplyLeading: true,
       ),
-      body: ListView.builder(
-        itemCount: clientes.length,
-        itemBuilder: (context, index) {
-          final cliente = clientes[index];
-          return _buildClientTile(
-            context,
-            cliente['nome'],
-            cliente,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('pacientes').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Nenhum cliente encontrado.'));
+          }
+
+          final clientes = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: clientes.length,
+            itemBuilder: (context, index) {
+              final cliente = clientes[index].data() as Map<String, dynamic>;
+              final docId = snapshot.data!.docs[index].id;
+
+              // Debug para verificar dados recuperados
+              debugPrint("Cliente recuperado: $cliente");
+
+              return _buildClientTile(
+                context,
+                cliente['nome'] ?? 'Nome indisponível',
+                cliente,
+                docId,
+              );
+            },
           );
         },
       ),
     );
   }
 
-  // Função para construir um "ListTile" personalizado para cada cliente
-  Widget _buildClientTile(BuildContext context, String nome, Map<String, dynamic> cliente) {
+  Widget _buildClientTile(
+    BuildContext context,
+    String nome,
+    Map<String, dynamic> cliente,
+    String docId,
+  ) {
+    // Acesso ao campo de nascimento
+    final dataNascimento =
+        cliente['nascimento']?.toString() ?? 'Data não disponível';
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: GestureDetector(
         onTap: () {
-          _showClientDetails(context, cliente);
+          _showClientDetails(context, cliente, docId);
         },
         child: Card(
           shape: RoundedRectangleBorder(
@@ -67,8 +73,9 @@ class SearchClientScreen extends StatelessWidget {
             leading: CircleAvatar(
               backgroundColor: const Color.fromARGB(255, 1, 118, 115),
               child: Text(
-                nome[0], // Pega a primeira letra do nome
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                nome[0], // Primeira letra do nome
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             title: Text(
@@ -78,29 +85,32 @@ class SearchClientScreen extends StatelessWidget {
                 fontSize: 16,
               ),
             ),
-            subtitle: const Text('Cliente'),
-            trailing: const Icon(Icons.more_vert, color: Colors.grey), // Removi o ícone de lápis
+            subtitle: Text('Nascimento: $dataNascimento'),
+            trailing: const Icon(Icons.more_vert, color: Colors.grey),
           ),
         ),
       ),
     );
   }
 
-  // Função para exibir o Bottom Sheet com os detalhes do cliente
-  void _showClientDetails(BuildContext context, Map<String, dynamic> cliente) {
+  void _showClientDetails(
+    BuildContext context,
+    Map<String, dynamic> cliente,
+    String docId,
+  ) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Permite maior controle sobre a altura
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       builder: (context) {
         return FractionallySizedBox(
-          heightFactor: 0.75, // Define a altura como 75% da tela
+          heightFactor: 0.75,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Faz o BottomSheet ajustar-se ao conteúdo
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -110,9 +120,10 @@ class SearchClientScreen extends StatelessWidget {
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: CircleAvatar(
-                          backgroundColor: const Color.fromARGB(255, 1, 118, 115),
+                          backgroundColor:
+                              const Color.fromARGB(255, 1, 118, 115),
                           child: Text(
-                            cliente['nome'][0], // Pega a primeira letra do nome
+                            cliente['nome'][0],
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -123,7 +134,7 @@ class SearchClientScreen extends StatelessWidget {
                           cliente['nome'],
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20, // Aumentando o tamanho da fonte para o nome
+                            fontSize: 20,
                           ),
                         ),
                         subtitle: const Text('Cliente'),
@@ -132,34 +143,30 @@ class SearchClientScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.more_vert),
                       onPressed: () {
-                        _showEditMenu(context, cliente);
+                        _showEditMenu(context, cliente, docId);
                       },
                     ),
                   ],
                 ),
-                const SizedBox(height: 20), // Maior espaçamento entre as linhas
-
-                // Detalhes com espaçamento e fonte maior
+                const SizedBox(height: 20),
                 _buildDetailItem('Nome', cliente['nome']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Data de Nascimento', cliente['nascimento']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('CPF', cliente['cpf']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('RG', cliente['rg']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Telefone', cliente['telefone']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Email', cliente['email']),
-                const SizedBox(height: 15), // Aumentando espaçamento entre os itens
-
-                _buildDetailItem('Observações', cliente['observacoes']),
-                const SizedBox(height: 25), // Espaçamento extra antes de fechar
+                const SizedBox(height: 15),
+                // Garantindo que estamos exibindo o campo correto de nascimento
+                _buildDetailItem('Data de Nascimento',
+                    cliente['nascimento']?.toString() ?? 'Data não disponível'),
+                const SizedBox(height: 15),
+                _buildDetailItem('CPF', cliente['cpf'] ?? 'Não informado'),
+                const SizedBox(height: 15),
+                _buildDetailItem('RG', cliente['rg'] ?? 'Não informado'),
+                const SizedBox(height: 15),
+                _buildDetailItem(
+                    'Telefone', cliente['telefone'] ?? 'Não informado'),
+                const SizedBox(height: 15),
+                _buildDetailItem('Email', cliente['email'] ?? 'Não informado'),
+                const SizedBox(height: 15),
+                _buildDetailItem(
+                    'Observações', cliente['observacoes'] ?? 'Nenhuma'),
+                const SizedBox(height: 25),
               ],
             ),
           ),
@@ -168,8 +175,8 @@ class SearchClientScreen extends StatelessWidget {
     );
   }
 
-  // Função para exibir o menu de três pontos dentro do Bottom Sheet
-  void _showEditMenu(BuildContext context, Map<String, dynamic> cliente) {
+  void _showEditMenu(
+      BuildContext context, Map<String, dynamic> cliente, String docId) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -177,18 +184,18 @@ class SearchClientScreen extends StatelessWidget {
       ),
       builder: (context) {
         return ListView(
-          shrinkWrap: true, // Ajusta o tamanho ao conteúdo
+          shrinkWrap: true,
           children: [
             ListTile(
-              leading: const Icon(Icons.edit), // Mantive o item de edição no menu
+              leading: const Icon(Icons.edit),
               title: const Text('Editar'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu
-                // Leva para a tela de edição com os dados do cliente
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditCliScreen(cliente: cliente),
+                    builder: (context) =>
+                        EditCliScreen(cliente: cliente, docId: docId),
                   ),
                 );
               },
@@ -197,8 +204,8 @@ class SearchClientScreen extends StatelessWidget {
               leading: const Icon(Icons.delete),
               title: const Text('Excluir'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu
-                _showConfirmDeleteDialog(context, cliente); // Exibe o pop-up de confirmação de exclusão
+                Navigator.pop(context);
+                _deleteClient(docId, context);
               },
             ),
           ],
@@ -207,7 +214,24 @@ class SearchClientScreen extends StatelessWidget {
     );
   }
 
-  // Função para construir os detalhes de cada item do cliente no BottomSheet
+  Future<void> _deleteClient(String docId, BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('pacientes')
+          .doc(docId)
+          .delete();
+      // Fecha o BottomSheet
+      Navigator.pop(context); // Fecha o BottomSheet
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cliente excluído com sucesso!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao excluir cliente: $e')),
+      );
+    }
+  }
+
   Widget _buildDetailItem(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,46 +240,17 @@ class SearchClientScreen extends StatelessWidget {
           '$title: ',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 16, // Aumentando o tamanho da fonte para o título
+            fontSize: 16,
           ),
         ),
-        const SizedBox(height: 5), // Espaço pequeno entre título e valor
+        const SizedBox(height: 5),
         Text(
           value,
           style: const TextStyle(
-            fontSize: 16, // Aumentando o tamanho da fonte para o valor
+            fontSize: 16,
           ),
         ),
       ],
-    );
-  }
-
-  // Função para exibir o pop-up de confirmação de exclusão
-  void _showConfirmDeleteDialog(BuildContext context, Map<String, dynamic> cliente) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Excluir cliente?'),
-          content: const Text('Tem certeza de que deseja excluir este cliente? Esta ação não pode ser desfeita.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo sem excluir
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Fecha o diálogo
-                // Aqui você pode implementar a ação de excluir o cliente
-                print('Cliente excluído: ${cliente['nome']}');
-              },
-              child: const Text('Excluir'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

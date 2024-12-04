@@ -116,7 +116,7 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
                         // Cria um mapa com os dados do cliente
                         final clientData = {
                           'nome': _nome,
-                          'data_nascimento': _dataNascimento,
+                          'nascimento': _dataNascimento,
                           'telefone': _telefone,
                           'cpf': _cpf,
                           'rg': _rg,
