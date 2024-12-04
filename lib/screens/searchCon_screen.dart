@@ -29,6 +29,8 @@ class SearchConsultationScreen extends StatelessWidget {
             itemCount: consultas.length,
             itemBuilder: (context, index) {
               final consulta = consultas[index].data() as Map<String, dynamic>;
+              consulta['id'] =
+                  consultas[index].id; // Adicionando o ID do documento
 
               // Buscar nome do paciente e do médico
               return FutureBuilder(
@@ -258,8 +260,7 @@ class SearchConsultationScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Fecha o diálogo
-                // Aqui você pode implementar a ação de excluir a consulta
-                print('Consulta excluída');
+                _deleteConsulta(consulta['id']); // Usando o ID da consulta
               },
               child: const Text('Excluir'),
             ),
@@ -267,5 +268,18 @@ class SearchConsultationScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  // Função para excluir a consulta
+  void _deleteConsulta(String consultaId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('consultas')
+          .doc(consultaId) // Usando o ID do documento
+          .delete();
+      print('Consulta excluída com sucesso');
+    } catch (e) {
+      print('Erro ao excluir consulta: $e');
+    }
   }
 }
