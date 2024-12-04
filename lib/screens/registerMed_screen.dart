@@ -25,7 +25,7 @@ class _RegisterDoctorScreenState extends State<RegisterDoctorScreen> {
   List<bool> _daysSelected = [false, false, false, false, false, false];
 
   // Lista de nomes dos dias da semana
-  final List<String> _daysOfWeek = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
+  final List<String> _daysOfWeek = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
   @override
   Widget build(BuildContext context) {

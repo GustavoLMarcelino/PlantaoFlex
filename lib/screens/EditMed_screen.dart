@@ -88,6 +88,47 @@ class _EditMedScreenState extends State<EditMedScreen> {
     }
   }
 
+  void _deleteDoctor() async {
+    bool confirmDelete = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text(
+            'Você tem certeza que deseja excluir este médico? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Excluir',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmDelete) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('medicos')
+            .doc(widget.docId)
+            .delete();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Médico excluído com sucesso!')),
+        );
+        Navigator.pop(context); // Volta à tela anterior após exclusão
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao excluir médico: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +136,13 @@ class _EditMedScreenState extends State<EditMedScreen> {
         title: const Text('Editar Médico'),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 217, 217, 217),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: _deleteDoctor,
+            tooltip: 'Excluir Médico',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
