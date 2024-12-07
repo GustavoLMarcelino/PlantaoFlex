@@ -1,165 +1,186 @@
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart'; // Para exibir a barra de progresso circular
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+class DashReportsScreen extends StatelessWidget {
+  const DashReportsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboards e Relatórios'),
+        title: const Text('Relatórios Financeiros'),
+        backgroundColor: Colors.blueGrey,
         centerTitle: true,
-        backgroundColor: Colors.grey[300],
-        automaticallyImplyLeading: true, // Mostra o botão "voltar"
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Título "Resumo diário"
-            const Text(
-              'Resumo diário',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 24, 108, 80),
-              ),
-            ),
-            const SizedBox(height: 10),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('consultas').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('Nenhuma consulta encontrada.'));
+          }
 
-            // Placeholder para o resumo diário (substitua com widgets gráficos reais)
-            Container(
-              height: 120,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Center(
-                child: Icon(Icons.insert_chart, size: 50, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 20),
+          final consultas = snapshot.data!.docs;
 
-            // Título "Próximas consultas"
-            const Text(
-              'Próximas consultas',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 24, 108, 80),
-              ),
-            ),
-            const SizedBox(height: 10),
+          return FutureBuilder<List<Map<String, dynamic>>>(
+            future: _calculateFinancialData(consultas),
+            builder: (context, futureSnapshot) {
+              if (futureSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!futureSnapshot.hasData || futureSnapshot.data!.isEmpty) {
+                return const Center(child: Text('Nenhum dado financeiro disponível.'));
+              }
 
-            // Lista das próximas consultas
-            Expanded(
-              child: ListView(
-                children: const [
-                  ConsultationCard(
-                    doctorInitial: 'K',
-                    doctorName: 'Dr. Kaue Oliver',
-                    time: '14:30 - 15:00',
-                  ),
-                  ConsultationCard(
-                    doctorInitial: 'L',
-                    doctorName: 'Dra. Louise Isis',
-                    time: '14:45 - 15:15',
-                  ),
-                  ConsultationCard(
-                    doctorInitial: 'A',
-                    doctorName: 'Dr. Arthur Tiago',
-                    time: '15:00 - 15:45',
-                  ),
-                ],
-              ),
-            ),
+              final financialData = futureSnapshot.data!;
 
-            const SizedBox(height: 20),
-
-            // Consultas concluídas com barra de progresso
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Consultas concluídas:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 24, 108, 80),
-                  ),
-                ),
-                CircularPercentIndicator(
-                  radius: 45.0,
-                  lineWidth: 10.0,
-                  percent: 0.8, // 80% de progresso
-                  center: const Text(
-                    '80%',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 24, 108, 80),
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: buildMosaicChart(financialData),
                     ),
-                  ),
-                  progressColor: const Color.fromARGB(255, 24, 108, 80),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: buildDetailsList(financialData),
+                    ),
+                  ],
                 ),
-              ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // Função para calcular os dados financeiros agrupados por médico com nomes
+  Future<List<Map<String, dynamic>>> _calculateFinancialData(
+      List<QueryDocumentSnapshot<Object?>> consultas) async {
+    final Map<String, Map<String, dynamic>> aggregatedData = {};
+
+    for (var consulta in consultas) {
+      final data = consulta.data() as Map<String, dynamic>;
+      final doctorId = data['doctorId'] ?? 'Desconhecido';
+      final fee = (data['fee'] ?? 0).toDouble();
+
+      if (aggregatedData.containsKey(doctorId)) {
+        aggregatedData[doctorId]!['totalFee'] += fee;
+        aggregatedData[doctorId]!['consultas'] += 1;
+      } else {
+        final doctorName = await _getDoctorName(doctorId);
+        aggregatedData[doctorId] = {
+          'doctorName': doctorName,
+          'totalFee': fee,
+          'consultas': 1,
+        };
+      }
+    }
+
+    return aggregatedData.values.toList();
+  }
+
+  // Função para buscar o nome do médico com base no doctorId
+  Future<String> _getDoctorName(String doctorId) async {
+    if (doctorId == 'Desconhecido') return 'Médico não encontrado';
+    final docSnapshot = await FirebaseFirestore.instance
+        .collection('medicos')
+        .doc(doctorId)
+        .get();
+    if (docSnapshot.exists) {
+      return docSnapshot['name'] ?? 'Nome não disponível';
+    }
+    return 'Médico não encontrado';
+  }
+
+  // Função para construir o gráfico de barras
+  Widget buildMosaicChart(List<Map<String, dynamic>> data) {
+    final barGroups = data
+        .asMap()
+        .entries
+        .map((entry) {
+          final index = entry.key;
+          final doctorData = entry.value;
+          return BarChartGroupData(
+            x: index,
+            barRods: [
+              BarChartRodData(
+                toY: doctorData['totalFee'],
+                color: Colors.blueGrey,
+                width: 16,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ],
+            showingTooltipIndicators: [0],
+          );
+        })
+        .toList();
+
+    return BarChart(
+      BarChartData(
+        gridData: FlGridData(show: false),
+        borderData: FlBorderData(
+          border: const Border(
+            top: BorderSide.none,
+            right: BorderSide.none,
+            bottom: BorderSide(width: 1),
+            left: BorderSide(width: 1),
+          ),
+        ),
+        barGroups: barGroups,
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, _) {
+                return Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(fontSize: 12),
+                );
+              },
             ),
-            const SizedBox(height: 10),
-            const Text(
-              '16 de 20 consultas finalizadas',
-              style: TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, _) {
+                if (value.toInt() < data.length) {
+                  final doctorName = data[value.toInt()]['doctorName'];
+                  return Text(
+                    doctorName,
+                    style: const TextStyle(fontSize: 10),
+                  );
+                }
+                return const SizedBox();
+              },
             ),
-          ],
+          ),
         ),
       ),
     );
   }
-}
 
-// Widget que representa uma "consulta" na lista
-class ConsultationCard extends StatelessWidget {
-  final String doctorInitial;
-  final String doctorName;
-  final String time;
-
-  const ConsultationCard({
-    Key? key,
-    required this.doctorInitial,
-    required this.doctorName,
-    required this.time,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(8.0),
-          leading: CircleAvatar(
-            backgroundColor: const Color.fromARGB(255, 24, 108, 80),
-            child: Text(
-              doctorInitial,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+  // Função para construir a lista detalhada
+  Widget buildDetailsList(List<Map<String, dynamic>> data) {
+    return ListView.builder(
+      itemCount: data.length,
+      itemBuilder: (context, index) {
+        final doctorData = data[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          child: ListTile(
+            title: Text(doctorData['doctorName']),
+            subtitle: Text(
+              'Consultas: ${doctorData['consultas']} | Total: R\$${doctorData['totalFee'].toStringAsFixed(2)}',
             ),
           ),
-          title: Text(
-            doctorName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(time),
-          trailing: const Icon(Icons.more_vert, color: Colors.grey),
-        ),
-      ),
+        );
+      },
     );
   }
 }

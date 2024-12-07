@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         '/consult-consults': (context) =>
             const SearchConsultationScreen(), // Rota para tela de consulta de consultas
         '/profile': (context) => const ProfileScreen(), // perfil do usuario
-        '/dashReports': (context) => const DashboardScreen(),
+        '/dashReports': (context) => const DashReportsScreen(),
         '/support': (context) => SuporteScreen(),
         '/question': (context) => const FAQScreen(),
       },
